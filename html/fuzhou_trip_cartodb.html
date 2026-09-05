@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_fca63751ab6ce2bb6504a56675862684 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_fca63751ab6ce2bb6504a56675862684" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_fca63751ab6ce2bb6504a56675862684 = L.map(
+                "map_fca63751ab6ce2bb6504a56675862684",
+                {
+                    center: [25.74940377857143, 119.57434574285715],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 10,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_ab1fa0b4d39cb374782125eb78074da3 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_ab1fa0b4d39cb374782125eb78074da3.addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var marker_dd5895170af70b4d6467e4547b207f45 = L.marker(
+                [25.9311243, 119.6702443],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+        var popup_ac99d76f5c3c363b85bf0d1417653191 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_08d4e816ea9a26452716a71ae5addea2 = $(`<div id="html_08d4e816ea9a26452716a71ae5addea2" style="width: 100.0%; height: 100.0%;">福州长乐机场</div>`)[0];
+                popup_ac99d76f5c3c363b85bf0d1417653191.setContent(html_08d4e816ea9a26452716a71ae5addea2);
+            
+        
+
+        marker_dd5895170af70b4d6467e4547b207f45.bindPopup(popup_ac99d76f5c3c363b85bf0d1417653191)
+        ;
+
+        
+    
+    
+            var marker_f5465810bd0cd8497546aeea0afbebc4 = L.marker(
+                [25.6299771, 119.7729669],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+        var popup_048809aabce614b1c16b28279ed1b0dc = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f2689150605859a457cf360a92efe2a3 = $(`<div id="html_f2689150605859a457cf360a92efe2a3" style="width: 100.0%; height: 100.0%;">平潭县长江澳沙滩</div>`)[0];
+                popup_048809aabce614b1c16b28279ed1b0dc.setContent(html_f2689150605859a457cf360a92efe2a3);
+            
+        
+
+        marker_f5465810bd0cd8497546aeea0afbebc4.bindPopup(popup_048809aabce614b1c16b28279ed1b0dc)
+        ;
+
+        
+    
+    
+            var marker_d3b7cee92a003256251aee92ec26572a = L.marker(
+                [25.5867096, 119.8245103],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+        var popup_4ea6a4d5e4cbcc1d78c5a874935b654e = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_aee41bfbad9b74ad92e3f95f50f12f5a = $(`<div id="html_aee41bfbad9b74ad92e3f95f50f12f5a" style="width: 100.0%; height: 100.0%;">平潭县石头厝</div>`)[0];
+                popup_4ea6a4d5e4cbcc1d78c5a874935b654e.setContent(html_aee41bfbad9b74ad92e3f95f50f12f5a);
+            
+        
+
+        marker_d3b7cee92a003256251aee92ec26572a.bindPopup(popup_4ea6a4d5e4cbcc1d78c5a874935b654e)
+        ;
+
+        
+    
+    
+            var marker_c3ca6fcf22d94b5bf48994d0f59b42a8 = L.marker(
+                [25.5171929, 119.8064377],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+        var popup_fe7ea1cef3c38076f36a116e06cce784 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_134689fd5186884c70e35a16b450d60d = $(`<div id="html_134689fd5186884c70e35a16b450d60d" style="width: 100.0%; height: 100.0%;">福州市平潭县龙凤路头沙滩</div>`)[0];
+                popup_fe7ea1cef3c38076f36a116e06cce784.setContent(html_134689fd5186884c70e35a16b450d60d);
+            
+        
+
+        marker_c3ca6fcf22d94b5bf48994d0f59b42a8.bindPopup(popup_fe7ea1cef3c38076f36a116e06cce784)
+        ;
+
+        
+    
+    
+            var marker_573574e7afe2e2f88da0102985a7440c = L.marker(
+                [25.4599309, 119.8545787],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+        var popup_e8f6f964f135f050b927d7c0bfe18cd4 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_2cb879d62a2dc0cc65580290c3ce45f2 = $(`<div id="html_2cb879d62a2dc0cc65580290c3ce45f2" style="width: 100.0%; height: 100.0%;">平潭猴研岛</div>`)[0];
+                popup_e8f6f964f135f050b927d7c0bfe18cd4.setContent(html_2cb879d62a2dc0cc65580290c3ce45f2);
+            
+        
+
+        marker_573574e7afe2e2f88da0102985a7440c.bindPopup(popup_e8f6f964f135f050b927d7c0bfe18cd4)
+        ;
+
+        
+    
+    
+            var marker_a1893108b9a424bdbfd06e5c49681536 = L.marker(
+                [25.4755705, 119.8162288],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+        var popup_e84d3a7ca05f8ba74a9ec9db85af5d8f = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_33a4ae465ce823e5369918780ef7c974 = $(`<div id="html_33a4ae465ce823e5369918780ef7c974" style="width: 100.0%; height: 100.0%;">平潭台湾小镇</div>`)[0];
+                popup_e84d3a7ca05f8ba74a9ec9db85af5d8f.setContent(html_33a4ae465ce823e5369918780ef7c974);
+            
+        
+
+        marker_a1893108b9a424bdbfd06e5c49681536.bindPopup(popup_e84d3a7ca05f8ba74a9ec9db85af5d8f)
+        ;
+
+        
+    
+    
+            var marker_d516bc5ecce46feb9ab1749bb8b1ea17 = L.marker(
+                [25.4762, 119.7623],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+        var popup_048956568cec4b32dab37dc363d0c254 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_cbc8ec2948bd3a29d37a05fddef02723 = $(`<div id="html_cbc8ec2948bd3a29d37a05fddef02723" style="width: 100.0%; height: 100.0%;">平潭县三十六脚湖</div>`)[0];
+                popup_048956568cec4b32dab37dc363d0c254.setContent(html_cbc8ec2948bd3a29d37a05fddef02723);
+            
+        
+
+        marker_d516bc5ecce46feb9ab1749bb8b1ea17.bindPopup(popup_048956568cec4b32dab37dc363d0c254)
+        ;
+
+        
+    
+    
+            var marker_2b57fa8ebc22407b98261cbee7f88082 = L.marker(
+                [25.4343, 119.6932],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+        var popup_95413ccd907b5672eca8d332441a7ef5 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_45e5a3fe72dc0d3710ee9bf1f75aaac8 = $(`<div id="html_45e5a3fe72dc0d3710ee9bf1f75aaac8" style="width: 100.0%; height: 100.0%;">平潭县象鼻湾</div>`)[0];
+                popup_95413ccd907b5672eca8d332441a7ef5.setContent(html_45e5a3fe72dc0d3710ee9bf1f75aaac8);
+            
+        
+
+        marker_2b57fa8ebc22407b98261cbee7f88082.bindPopup(popup_95413ccd907b5672eca8d332441a7ef5)
+        ;
+
+        
+    
+    
+            var marker_fe762e9e1594adb44ecd3363ec29faec = L.marker(
+                [25.7648807, 118.9971049],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+        var popup_706941fa8dbdbb5b2d596d478655d5eb = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_ff65f608001d69ba2171b5310dea1b3e = $(`<div id="html_ff65f608001d69ba2171b5310dea1b3e" style="width: 100.0%; height: 100.0%;">福州市永泰县云顶天池草场</div>`)[0];
+                popup_706941fa8dbdbb5b2d596d478655d5eb.setContent(html_ff65f608001d69ba2171b5310dea1b3e);
+            
+        
+
+        marker_fe762e9e1594adb44ecd3363ec29faec.bindPopup(popup_706941fa8dbdbb5b2d596d478655d5eb)
+        ;
+
+        
+    
+    
+            var marker_55825ab00eeed987c7ca7862947b14eb = L.marker(
+                [26.0954577, 119.2670499],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+        var popup_761a504d37912309a74117e684321f7d = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_86707f9d6d4285ef295509ee009d6e05 = $(`<div id="html_86707f9d6d4285ef295509ee009d6e05" style="width: 100.0%; height: 100.0%;">福州市福道</div>`)[0];
+                popup_761a504d37912309a74117e684321f7d.setContent(html_86707f9d6d4285ef295509ee009d6e05);
+            
+        
+
+        marker_55825ab00eeed987c7ca7862947b14eb.bindPopup(popup_761a504d37912309a74117e684321f7d)
+        ;
+
+        
+    
+    
+            var marker_03de0cefe61f6e2104592ff6b11a4689 = L.marker(
+                [26.0850946, 119.2919836],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+        var popup_3ec4b201f4922ae8104bd8fde43fd7aa = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_4fa293b29abf2df93419c696a23cb30d = $(`<div id="html_4fa293b29abf2df93419c696a23cb30d" style="width: 100.0%; height: 100.0%;">福州市三坊七巷</div>`)[0];
+                popup_3ec4b201f4922ae8104bd8fde43fd7aa.setContent(html_4fa293b29abf2df93419c696a23cb30d);
+            
+        
+
+        marker_03de0cefe61f6e2104592ff6b11a4689.bindPopup(popup_3ec4b201f4922ae8104bd8fde43fd7aa)
+        ;
+
+        
+    
+    
+            var marker_bedb20b20758431a3a2580826668ec8a = L.marker(
+                [26.0559454, 119.3030957],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+        var popup_5aeee9fb268795395bb7aa30060123d5 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_e4b75a7251279255a92d31e5d10820a1 = $(`<div id="html_e4b75a7251279255a92d31e5d10820a1" style="width: 100.0%; height: 100.0%;">福州市上下杭</div>`)[0];
+                popup_5aeee9fb268795395bb7aa30060123d5.setContent(html_e4b75a7251279255a92d31e5d10820a1);
+            
+        
+
+        marker_bedb20b20758431a3a2580826668ec8a.bindPopup(popup_5aeee9fb268795395bb7aa30060123d5)
+        ;
+
+        
+    
+    
+            var marker_4e5c7b7734c82e3b91eaa15a1bcea4e5 = L.marker(
+                [26.0481449, 119.3108953],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+        var popup_4c9b985eaf0b99f6672e01371b898faf = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_24824397588e497cd35f758b3688cbbb = $(`<div id="html_24824397588e497cd35f758b3688cbbb" style="width: 100.0%; height: 100.0%;">福州市烟台山</div>`)[0];
+                popup_4c9b985eaf0b99f6672e01371b898faf.setContent(html_24824397588e497cd35f758b3688cbbb);
+            
+        
+
+        marker_4e5c7b7734c82e3b91eaa15a1bcea4e5.bindPopup(popup_4c9b985eaf0b99f6672e01371b898faf)
+        ;
+
+        
+    
+    
+            var marker_98148c1ff42c6547afbb1800cb75cd1e = L.marker(
+                [25.9311243, 119.6702443],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+        var popup_776f2de425bc01617700a09a73dcd7c5 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_6165393bffbe6417d072054eedd47038 = $(`<div id="html_6165393bffbe6417d072054eedd47038" style="width: 100.0%; height: 100.0%;">福州长乐机场</div>`)[0];
+                popup_776f2de425bc01617700a09a73dcd7c5.setContent(html_6165393bffbe6417d072054eedd47038);
+            
+        
+
+        marker_98148c1ff42c6547afbb1800cb75cd1e.bindPopup(popup_776f2de425bc01617700a09a73dcd7c5)
+        ;
+
+        
+    
+    
+            var poly_line_b86bf8d82b9ca86a94d8df9a2592370a = L.polyline(
+                [[25.9311243, 119.6702443], [25.6299771, 119.7729669], [25.5867096, 119.8245103], [25.5171929, 119.8064377], [25.4599309, 119.8545787], [25.4755705, 119.8162288], [25.4762, 119.7623], [25.4343, 119.6932], [25.7648807, 118.9971049], [26.0954577, 119.2670499], [26.0850946, 119.2919836], [26.0559454, 119.3030957], [26.0481449, 119.3108953], [25.9311243, 119.6702443]],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var marker_fea7d582d2ed3b4d83993f78607ffcd4 = L.marker(
+                [25.7805507, 119.7216056],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var div_icon_179d1242ab236dc930daa4d3ee30b7b0 = L.divIcon({
+  "html": "\u003cdiv style=\"\n        font-size: 10pt; \n        color: red; \n        font-weight: bold; \n        background: white; \n        padding: 2px 6px; \n        border-radius: 4px; \n        border: 1px solid red;\n        white-space: nowrap;\n        display: inline-block;\n    \"\u003e35.03 km\u003c/div\u003e",
+  "iconSize": [100, 30],
+  "iconAnchor": [50, 15],
+  "className": "empty",
+});
+        
+    
+                marker_fea7d582d2ed3b4d83993f78607ffcd4.setIcon(div_icon_179d1242ab236dc930daa4d3ee30b7b0);
+            
+    
+            var marker_a41b399fb5388197fa40f0e8ecdaf9e3 = L.marker(
+                [25.60834335, 119.79873860000001],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var div_icon_3e2c262fa79debaae21066c6f11933f0 = L.divIcon({
+  "html": "\u003cdiv style=\"\n        font-size: 10pt; \n        color: red; \n        font-weight: bold; \n        background: white; \n        padding: 2px 6px; \n        border-radius: 4px; \n        border: 1px solid red;\n        white-space: nowrap;\n        display: inline-block;\n    \"\u003e7.06 km\u003c/div\u003e",
+  "iconSize": [90, 30],
+  "iconAnchor": [45, 15],
+  "className": "empty",
+});
+        
+    
+                marker_a41b399fb5388197fa40f0e8ecdaf9e3.setIcon(div_icon_3e2c262fa79debaae21066c6f11933f0);
+            
+    
+            var marker_4dfebbbb4fc87c45cbe8315b144db4df = L.marker(
+                [25.551951250000002, 119.815474],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var div_icon_f2bb8a17896f61f8f603c12fee019fa2 = L.divIcon({
+  "html": "\u003cdiv style=\"\n        font-size: 10pt; \n        color: red; \n        font-weight: bold; \n        background: white; \n        padding: 2px 6px; \n        border-radius: 4px; \n        border: 1px solid red;\n        white-space: nowrap;\n        display: inline-block;\n    \"\u003e7.94 km\u003c/div\u003e",
+  "iconSize": [90, 30],
+  "iconAnchor": [45, 15],
+  "className": "empty",
+});
+        
+    
+                marker_4dfebbbb4fc87c45cbe8315b144db4df.setIcon(div_icon_f2bb8a17896f61f8f603c12fee019fa2);
+            
+    
+            var marker_783826998ed79a66b4277e15ccbb556d = L.marker(
+                [25.4885619, 119.8305082],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var div_icon_8ba4a1c10b0957393c13a0098a1bb0db = L.divIcon({
+  "html": "\u003cdiv style=\"\n        font-size: 10pt; \n        color: red; \n        font-weight: bold; \n        background: white; \n        padding: 2px 6px; \n        border-radius: 4px; \n        border: 1px solid red;\n        white-space: nowrap;\n        display: inline-block;\n    \"\u003e7.99 km\u003c/div\u003e",
+  "iconSize": [90, 30],
+  "iconAnchor": [45, 15],
+  "className": "empty",
+});
+        
+    
+                marker_783826998ed79a66b4277e15ccbb556d.setIcon(div_icon_8ba4a1c10b0957393c13a0098a1bb0db);
+            
+    
+            var marker_41e2d3b4553e6e6217029185bb0c5629 = L.marker(
+                [25.4677507, 119.83540375000001],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var div_icon_4094e31fc4a3c38af1b2e3205332bea2 = L.divIcon({
+  "html": "\u003cdiv style=\"\n        font-size: 10pt; \n        color: red; \n        font-weight: bold; \n        background: white; \n        padding: 2px 6px; \n        border-radius: 4px; \n        border: 1px solid red;\n        white-space: nowrap;\n        display: inline-block;\n    \"\u003e4.22 km\u003c/div\u003e",
+  "iconSize": [90, 30],
+  "iconAnchor": [45, 15],
+  "className": "empty",
+});
+        
+    
+                marker_41e2d3b4553e6e6217029185bb0c5629.setIcon(div_icon_4094e31fc4a3c38af1b2e3205332bea2);
+            
+    
+            var marker_09c7db7c2c816a6167a276579591862a = L.marker(
+                [25.475885249999997, 119.78926440000001],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var div_icon_43dfb899d8db78fb1218bf338601f839 = L.divIcon({
+  "html": "\u003cdiv style=\"\n        font-size: 10pt; \n        color: red; \n        font-weight: bold; \n        background: white; \n        padding: 2px 6px; \n        border-radius: 4px; \n        border: 1px solid red;\n        white-space: nowrap;\n        display: inline-block;\n    \"\u003e5.41 km\u003c/div\u003e",
+  "iconSize": [90, 30],
+  "iconAnchor": [45, 15],
+  "className": "empty",
+});
+        
+    
+                marker_09c7db7c2c816a6167a276579591862a.setIcon(div_icon_43dfb899d8db78fb1218bf338601f839);
+            
+    
+            var marker_c2f573be117b89f22107f7ff28df175f = L.marker(
+                [25.45525, 119.72775],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var div_icon_a9547a3d68431e58803e5d2686daf086 = L.divIcon({
+  "html": "\u003cdiv style=\"\n        font-size: 10pt; \n        color: red; \n        font-weight: bold; \n        background: white; \n        padding: 2px 6px; \n        border-radius: 4px; \n        border: 1px solid red;\n        white-space: nowrap;\n        display: inline-block;\n    \"\u003e8.36 km\u003c/div\u003e",
+  "iconSize": [90, 30],
+  "iconAnchor": [45, 15],
+  "className": "empty",
+});
+        
+    
+                marker_c2f573be117b89f22107f7ff28df175f.setIcon(div_icon_a9547a3d68431e58803e5d2686daf086);
+            
+    
+            var marker_150efee193522a2c409dd47630477240 = L.marker(
+                [25.59959035, 119.34515245],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var div_icon_27001d910a3016ea42a9707f73ad62cc = L.divIcon({
+  "html": "\u003cdiv style=\"\n        font-size: 10pt; \n        color: red; \n        font-weight: bold; \n        background: white; \n        padding: 2px 6px; \n        border-radius: 4px; \n        border: 1px solid red;\n        white-space: nowrap;\n        display: inline-block;\n    \"\u003e78.89 km\u003c/div\u003e",
+  "iconSize": [100, 30],
+  "iconAnchor": [50, 15],
+  "className": "empty",
+});
+        
+    
+                marker_150efee193522a2c409dd47630477240.setIcon(div_icon_27001d910a3016ea42a9707f73ad62cc);
+            
+    
+            var marker_829cf9973b9ddf1c2212522e37999f8f = L.marker(
+                [25.9301692, 119.1320774],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var div_icon_b195bebe29ce53982c778454dadfb78a = L.divIcon({
+  "html": "\u003cdiv style=\"\n        font-size: 10pt; \n        color: red; \n        font-weight: bold; \n        background: white; \n        padding: 2px 6px; \n        border-radius: 4px; \n        border: 1px solid red;\n        white-space: nowrap;\n        display: inline-block;\n    \"\u003e45.61 km\u003c/div\u003e",
+  "iconSize": [100, 30],
+  "iconAnchor": [50, 15],
+  "className": "empty",
+});
+        
+    
+                marker_829cf9973b9ddf1c2212522e37999f8f.setIcon(div_icon_b195bebe29ce53982c778454dadfb78a);
+            
+    
+            var marker_74a1c90b45cb95f452d178606bc2149f = L.marker(
+                [26.09027615, 119.27951675],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var div_icon_6ed3aa5a751655659fc6e8c1d352d637 = L.divIcon({
+  "html": "\u003cdiv style=\"\n        font-size: 10pt; \n        color: red; \n        font-weight: bold; \n        background: white; \n        padding: 2px 6px; \n        border-radius: 4px; \n        border: 1px solid red;\n        white-space: nowrap;\n        display: inline-block;\n    \"\u003e2.74 km\u003c/div\u003e",
+  "iconSize": [90, 30],
+  "iconAnchor": [45, 15],
+  "className": "empty",
+});
+        
+    
+                marker_74a1c90b45cb95f452d178606bc2149f.setIcon(div_icon_6ed3aa5a751655659fc6e8c1d352d637);
+            
+    
+            var marker_baeec9a879252d724485513ec26200e0 = L.marker(
+                [26.070520000000002, 119.29753965],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var div_icon_ac4e5f6e1bc4d645664bea1ac65657c1 = L.divIcon({
+  "html": "\u003cdiv style=\"\n        font-size: 10pt; \n        color: red; \n        font-weight: bold; \n        background: white; \n        padding: 2px 6px; \n        border-radius: 4px; \n        border: 1px solid red;\n        white-space: nowrap;\n        display: inline-block;\n    \"\u003e3.43 km\u003c/div\u003e",
+  "iconSize": [90, 30],
+  "iconAnchor": [45, 15],
+  "className": "empty",
+});
+        
+    
+                marker_baeec9a879252d724485513ec26200e0.setIcon(div_icon_ac4e5f6e1bc4d645664bea1ac65657c1);
+            
+    
+            var marker_89187009c02b98e6a00dfa1ec93ecd28 = L.marker(
+                [26.052045149999998, 119.3069955],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var div_icon_b44319ffb66f9cd10c3d6096211903f7 = L.divIcon({
+  "html": "\u003cdiv style=\"\n        font-size: 10pt; \n        color: red; \n        font-weight: bold; \n        background: white; \n        padding: 2px 6px; \n        border-radius: 4px; \n        border: 1px solid red;\n        white-space: nowrap;\n        display: inline-block;\n    \"\u003e1.17 km\u003c/div\u003e",
+  "iconSize": [90, 30],
+  "iconAnchor": [45, 15],
+  "className": "empty",
+});
+        
+    
+                marker_89187009c02b98e6a00dfa1ec93ecd28.setIcon(div_icon_b44319ffb66f9cd10c3d6096211903f7);
+            
+    
+            var marker_9219f4f44d10e2a100518924d77c4bd3 = L.marker(
+                [25.989634600000002, 119.4905698],
+                {
+}
+            ).addTo(map_fca63751ab6ce2bb6504a56675862684);
+        
+    
+            var div_icon_faddcced950f48fee7141df9884c67c4 = L.divIcon({
+  "html": "\u003cdiv style=\"\n        font-size: 10pt; \n        color: red; \n        font-weight: bold; \n        background: white; \n        padding: 2px 6px; \n        border-radius: 4px; \n        border: 1px solid red;\n        white-space: nowrap;\n        display: inline-block;\n    \"\u003e38.20 km\u003c/div\u003e",
+  "iconSize": [100, 30],
+  "iconAnchor": [50, 15],
+  "className": "empty",
+});
+        
+    
+                marker_9219f4f44d10e2a100518924d77c4bd3.setIcon(div_icon_faddcced950f48fee7141df9884c67c4);
+            
+    
+            map_fca63751ab6ce2bb6504a56675862684.fitBounds(
+                [[25.4343, 118.9971049], [26.0954577, 119.8545787]],
+                {}
+            );
+        
+    
+                var lat_lng_popup_96fc254ac84e9ef9237bfdd6574a4a0b = L.popup();
+                function latLngPop(e) {
+                    lat_lng_popup_96fc254ac84e9ef9237bfdd6574a4a0b
+                        .setLatLng(e.latlng)
+                        .setContent("Latitude: " + e.latlng.lat.toFixed(4) +
+                                    "<br>Longitude: " + e.latlng.lng.toFixed(4))
+                        .openOn(map_fca63751ab6ce2bb6504a56675862684);
+                    }
+                map_fca63751ab6ce2bb6504a56675862684.on('click', latLngPop);
+            
+</script>
+</html>
