@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<title>福州四日 · 行程单</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+/* Phone-first sizing: read on a 6" screen, so body text sits at ~12.9pt
+     (roughly 17px on a 96dpi phone) with generous line spacing. Everything
+     else scales off the same ratios so the layout keeps its proportions. */
+  body {
+    margin: 0; background: #eef1f6; color: #1a2233;
+    font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Segoe UI", sans-serif;
+    line-height: 1.74; font-size: 13.5pt;
+  }
+  .page { width: 210mm; min-height: 297mm; margin: 0 auto 14px; padding: 11mm 10mm 10mm;
+          background: #fff; position: relative; overflow: hidden; }
+  .page::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+    background: linear-gradient(90deg,#0f2d52,#1d6fa5 45%,#e8a33d 78%,#c8503c); }
+
+  /* ---------- cover ---------- */
+  .cover { display: flex; flex-direction: column; justify-content: center; color: #fff;
+    background: linear-gradient(155deg,#0c2340 0%,#143a63 48%,#1d5c86 100%); }
+  .cover::before { background: linear-gradient(90deg,#e8a33d,#c8503c); height: 7px; }
+  .cover .kicker { letter-spacing: .42em; font-size: 11.49pt; opacity: .72; margin-bottom: 14px; }
+  .cover h1 { font-size: 51.07pt; margin: 0 0 6px; letter-spacing: 5px; font-weight: 800; }
+  .cover .sub { font-size: 15.32pt; opacity: .9; margin-bottom: 34px; letter-spacing: 1px; }
+  .cover .rule { width: 74px; height: 3px; background: #e8a33d; margin-bottom: 32px; }
+  .cover .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px 26px; max-width: 132mm; }
+  .cover .fact { border-left: 2px solid rgba(232,163,61,.75); padding-left: 11px; }
+  .cover .fact b { display: block; font-size: 9.7pt; letter-spacing: .16em; opacity: .62;
+    text-transform: uppercase; margin-bottom: 2px; }
+  .cover .fact span { font-size: 14.68pt; font-weight: 600; }
+  .cover .foot { position: absolute; bottom: 15mm; left: 15mm; right: 15mm; font-size: 10.21pt;
+    opacity: .5; display: flex; justify-content: space-between; }
+
+  /* ---------- section head ---------- */
+  /* ---------- overview ---------- */
+  .ov { border: 1px solid #dfe5ee; border-radius: 8px; padding: 9px 12px; margin-bottom: 9px;
+        break-inside: avoid; page-break-inside: avoid; }
+  .ov-h { display: flex; align-items: center; gap: 10px; }
+  .ov-no { font-size: 19.15pt; font-weight: 800; color: #1d6fa5; line-height: 1; }
+  .ov-t { flex: 1; }
+  .ov-t b { font-size: 14.04pt; }
+  .ov-t div { font-size: 10.21pt; color: #7b8794; }
+  .ov-w { font-size: 10.21pt; color: #40506a; text-align: right; }
+  .ov-w .ico { font-size: 16.6pt; vertical-align: -2px; margin-right: 3px; }
+  .ov-w b { color: #16283f; }
+  .ov-n { font-size: 10.47pt; color: #55637a; margin: 5px 0 6px; }
+  .ov-s { display: flex; flex-wrap: wrap; gap: 4px; }
+  .pill { font-size: 8.21pt; background: #eef4fa; color: #2b5f8a; border: 1px solid #dae7f2;
+    border-radius: 9px; padding: 1.5px 7px; }
+
+  .sect { display: flex; align-items: baseline; gap: 11px; margin: 0 0 13px;
+    border-bottom: 2px solid #0f2d52; padding-bottom: 7px; }
+  .sect .n { font-size: 26.81pt; font-weight: 800; color: #1d6fa5; line-height: 1; }
+  .sect h2 { margin: 0; font-size: 17.88pt; letter-spacing: 1px; }
+  .sect .hint { margin-left: auto; font-size: 10.21pt; color: #7b8794; }
+
+  /* ---------- day card ---------- */
+  .day { break-inside: avoid; page-break-inside: avoid; margin-bottom: 13px;
+    border: 1px solid #dfe5ee; border-radius: 9px; overflow: hidden; }
+  .day.sheet { break-before: page; page-break-before: always; margin-bottom: 0; }
+  .day.sheet:last-of-type { margin-bottom: 13px; }
+  .day-head { background: linear-gradient(100deg,#0f2d52,#1d5c86); color: #fff;
+    padding: 10px 14px; display: flex; align-items: center; gap: 12px; }
+  .day-no { font-size: 25.54pt; font-weight: 800; line-height: 1; opacity: .95; }
+  .day-no small { font-size: 10.21pt; display: block; letter-spacing: .18em; opacity: .7; }
+  .day-title { flex: 1; }
+  .day-title b { font-size: 15.96pt; letter-spacing: .5px; }
+  .day-title div { font-size: 10.73pt; opacity: .78; margin-top: 1px; }
+  .wx { text-align: right; font-size: 10.73pt; line-height: 1.5; opacity: .95; }
+  .wx .ico { font-size: 21.71pt; }
+  .wx b { font-size: 12.77pt; }
+
+  .day-note { background: #f6f9fc; border-bottom: 1px solid #e8eef6; padding: 7px 14px;
+    font-size: 10.98pt; color: #40506a; }
+  .day-note b { color: #0f2d52; }
+
+  /* ---------- timeline ---------- */
+  .tl { padding: 12px 14px 13px; }
+  .row { display: grid; grid-template-columns: 62px 16px 1fr; gap: 0 11px; }
+  .row .t { font-size: 11.23pt; font-weight: 700; color: #1d6fa5; text-align: right;
+    padding-top: 1px; font-variant-numeric: tabular-nums; }
+  .rail { position: relative; }
+  .rail::before { content: ""; position: absolute; left: 6px; top: 3px; bottom: -3px;
+    width: 2px; background: #dde5f0; }
+  .row:last-child .rail::before { display: none; }
+  .dot { position: absolute; left: 2px; top: 3px; width: 10px; height: 10px; border-radius: 50%;
+    background: #fff; border: 2.5px solid #1d6fa5; }
+  .row.key .dot { border-color: #c8503c; background: #c8503c; }
+  .row.key .t { color: #c8503c; }
+  .body { padding: 0 0 11px 0; }
+  .body h4 { margin: 0 0 2px; font-size: 13.28pt; display: flex; align-items: center; gap: 6px; }
+  .tag { font-size: 7.98pt; font-weight: 700; padding: 1.5px 6px; border-radius: 3px;
+    background: #eaf2f9; color: #1d5c86; letter-spacing: .04em; }
+  .row.key .tag { background: #fbecea; color: #c8503c; }
+  .dur { font-size: 9.7pt; color: #8b96a4; font-weight: 600; }
+  .body p { margin: 2px 0 0; font-size: 12.4pt; line-height: 1.7; color: #3d4a5c; }
+  .body b { color: #16283f; }
+
+  /* ---------- checklist / refs ---------- */
+  .cl { list-style: none; padding: 0; margin: 0; }
+  .cl li { padding: 9px 0 9px 118px; border-bottom: 1px dashed #e3e9f2; position: relative; }
+  .cl li:last-child { border-bottom: 0; }
+  .cl .when { position: absolute; left: 0; top: 9px; font-size: 10.21pt; font-weight: 700;
+    color: #1d6fa5; background: #eaf2f9; padding: 1.5px 7px; border-radius: 3px; }
+  .cl .what { font-size: 11.23pt; color: #3d4a5c; }
+  .cl .what b { color: #16283f; }
+  .refs { font-size: 9.7pt; color: #8b96a4; line-height: 1.75; }
+  .refs li { margin-bottom: 1px; }
+  .foot { margin-top: 13px; padding-top: 8px; border-top: 1px solid #e8eef6;
+    font-size: 8.44pt; color: #a4aeba; display: flex; justify-content: space-between; }
+.warn { background: #fdf6ec; border: 1px solid #f0dcbc; border-left: 3px solid #e8a33d;
+    border-radius: 5px; padding: 9px 12px; font-size: 9.6pt; color: #6b5327; margin-bottom: 13px; }
+  .warn b { color: #8a6420; }
+  /* the D1 "decide today" banner - deliberately loud */
+  .alert { background: linear-gradient(100deg,#fff4e2,#fde8d0); border: 2px solid #e8a33d;
+    border-radius: 7px; padding: 8px 13px 9px; margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(200,120,20,.12); }
+  .alert-t { font-size: 11pt; font-weight: 800; color: #a05e12; letter-spacing: .3px;
+    padding-bottom: 4px; margin-bottom: 4px; border-bottom: 1px solid rgba(224,150,40,.4); }
+  .alert p { margin: 3px 0 0; font-size: 9.6pt; color: #6b4c1c; }
+  .alert p.why { font-size: 9pt; color: #7d6338; margin-top: 6px;
+    border-top: 1px dashed rgba(224,150,40,.45); padding-top: 6px; }
+  .alert b { color: #8a4d08; }
+</style></head><body>
+
+<div class="page cover">
+  <div class="kicker">F U Z H O U &nbsp; 2 0 2 6</div>
+  <h1>福州四日</h1>
+  <div class="sub">2026 国庆黄金周 · 人肉版行程</div>
+  <div class="rule"></div>
+  <div class="facts">
+    <div class="fact"><b>Dates</b><span>2026年10月3日（周六） — 10月6日（周二）</span></div>
+    <div class="fact"><b>Base</b><span>达道地铁站亚朵酒店</span></div>
+    <div class="fact"><b>Arrive</b><span>福州站 14:00</span></div>
+    <div class="fact"><b>Depart</b><span>长乐机场 20:00</span></div>
+  </div>
+  <div class="foot"><span>行程随天气可调 · 数据以公开信息校订</span><span>01</span></div>
+</div>
+
+<div class="page">
+  <div class="sect"><div class="n">01</div><h2>行程总览</h2>
+    <div class="hint">按公开信息校订 · 时间为建议值</div></div>
+
+  <div class="warn">
+    <b>三个坑先记住</b>：① 船政博物馆<b>17:00 后只开一、二楼</b>，想逛五层得赶早；② 鼓岭专线<b>票价 15 元</b>，小程序购票；③ 福道 <b>5 号口在西侧、离地铁远</b>，回程<b>现场查公交或直接打车</b>。
+  </div>
+
+  <div class="ov">
+    <div class="ov-h">
+      <div class="ov-no">D1</div>
+      <div class="ov-t"><b>老城入场 · 三坊七巷 + 福道</b><div> 周六</div></div>
+      <div class="ov-w"><span class="ico">☁️</span>
+        <b>阴·无降水</b> · 28/23℃ · 降水 0mm</div>
+    </div>
+    <div class="ov-n"><b>全天零降水</b>，傍晚福道灯光 18:30 起（阴天反而更明显）。</div>
+    <div class="ov-s">
+<span class="pill">14:00 福州站抵达 → 酒店</span><span class="pill">15:00 去三坊七巷</span><span class="pill">15:30 三坊七巷</span><span class="pill">17:30 晚餐：达明美食街</span><span class="pill">19:30 福道夜游</span><span class="pill">21:40 回酒店</span>    </div>
+  </div>
+  <div class="ov">
+    <div class="ov-h">
+      <div class="ov-no">D2</div>
+      <div class="ov-t"><b>室内首选 · 马尾船政（博物馆 + 演艺）</b><div> 周日</div></div>
+      <div class="ov-w"><span class="ico">⛈️</span>
+        <b>雷阵雨</b> · 31/24℃ · 降水 12.9mm</div>
+    </div>
+    <div class="ov-n"><b>全天有雨（12.9mm）但集中在傍晚</b>：09:00 晴 0%、12:00 毛毛雨 12%、15:00 小雨 39%、<b>18:00 阵雨 61%</b>。博物馆和剧场都在室内，雨不影响；15:40 返程时雨才起来，伞备好。<br><b>若 D1 决定对调，这天改去鼓岭</b>——10/4 上午山上基本无雨。</div>
+    <div class="ov-s">
+<span class="pill">08:40 出发去马尾 + 博物馆</span><span class="pill">12:40 午餐</span><span class="pill">13:45 《最忆船政》入场（14:30–15:40）</span><span class="pill">15:40 返程回酒店</span>    </div>
+  </div>
+  <div class="ov">
+    <div class="ov-h">
+      <div class="ov-no">D3</div>
+      <div class="ov-t"><b>山上避暑 · 鼓岭</b><div> 周一</div></div>
+      <div class="ov-w"><span class="ico">🌧️</span>
+        <b>阵雨</b> · 24/22℃ · 降水 13.8mm</div>
+    </div>
+    <div class="ov-n"><b>全天有雨（13.8mm）</b>，10:00 起下、全天湿，中午最盛、傍晚转好。<b>山上低 8–10℃</b>，外套别省。<b>若 D1 决定对调，这天改去鼓岭</b>——10/4 上午基本无雨。</div>
+    <div class="ov-s">
+<span class="pill">07:00 地铁1号线→2号线→鼓岭专线</span><span class="pill">08:30 鼓岭：古厝人文线</span><span class="pill">12:30 午餐 + 有余力：柱里 / 长田溪</span><span class="pill">15:30 鼓岭专线 下山 → 回酒店</span><span class="pill">18:30 晚餐：老药洲街</span>    </div>
+  </div>
+  <div class="ov">
+    <div class="ov-h">
+      <div class="ov-no">D4</div>
+      <div class="ov-t"><b>光影收官 · 烟台山 + 上下杭</b><div> 周二</div></div>
+      <div class="ov-w"><span class="ico">☁️</span>
+        <b>阴·无降水</b> · 25/20℃ · 降水 0mm</div>
+    </div>
+    <div class="ov-n"><b>四天里唯一零降水的一天</b>，天空最稳。<b>日落 17:44</b>，上下杭的灯光正好赶在天黑前。</div>
+    <div class="ov-s">
+<span class="pill">07:30 出发去烟台山 → 旅拍（8:00–10:00）</span><span class="pill">10:00 自由漫步 + 午餐</span><span class="pill">13:30 上下杭</span><span class="pill">15:30 机动：还没逛的市区景点</span><span class="pill">17:30 回酒店取行李 → 机场</span>    </div>
+  </div>
+  <div class="foot"><span>福州四日 · 2026年10月3日（周六） — 10月6日（周二）</span><span>02</span></div>
+</div>
+
+<div class="page day-sheet-wrap">
+  <div class="alert">
+    <b class="alert-t">10/3 今天白天必做</b>　<b>查最新预报 → 定 Day 2/Day 3 是否互换 → 再决定买哪天的《最忆船政》票。</b>鼓岭户外怕雨、船政室内不怕雨，<b>晴天该留给鼓岭</b>；按 10/2 预报倾向对调，但<b>今天下午再定</b>。
+  </div>
+  <div class="sect"><div class="n">01</div><h2>Day 1 · 老城入场 · 三坊七巷 + 福道</h2>
+    <div class="hint"> 周六 · 阴·无降水 28/23℃</div></div>
+  <div class="day-note" style="border:1px solid #e8eef6;border-radius:5px;margin-bottom:12px"><b>全天零降水</b>，傍晚福道灯光 18:30 起（阴天反而更明显）。</div>
+  <div class="tl" style="padding:0">
+    <div class="row">
+      <div class="t">14:00</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>福州站抵达 → 酒店
+          <span class="tag">交通</span>
+          <span class="dur">约 50 分钟</span></h4>
+        <p>出站后地铁1号线往<b>达道</b>站，酒店就在达道地铁站旁，<b>约半小时</b>。放完行李轻装上阵。</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">15:00</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>去三坊七巷
+          <span class="tag">交通</span>
+          <span class="dur">约 30 分钟</span></h4>
+        <p>从酒店<b>地铁1号线南门兜站</b>下车，步行即到街区南入口，全程<b>约半小时</b>。</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">15:30</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>三坊七巷
+          <span class="tag">必逛</span>
+          <span class="dur">3–4 小时</span></h4>
+        <p>街区免费，<b>收费故居联票 70 元 / 2 日有效</b>。主线：南后街 → 水榭戏台 → 文儒坊 → 光禄坊 → 安民巷 → 塔巷，约 3–4 小时。<br><b>免费点位</b>：林则徐纪念馆（澳门路，凭身份证取号）、鄢家花厅。<b>顺路吃</b>：木金肉丸（1910 年）、永和鱼丸（1934 年）。</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">17:30</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>晚餐：达明美食街
+          <span class="tag">吃</span>
+          <span class="dur">1.5 小时</span></h4>
+        <p><b>17:00–23:00</b>。必吃永和鱼丸、同利肉燕、捞化、芋泥、花生汤、海蛎饼。<br><b>军门社区不是美食街</b>，长者食堂属民生设施；想吃就去省府路、达明路一带。</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">19:30</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>福道夜游
+          <span class="tag">夜景</span>
+          <span class="dur">1.5–2 小时</span></h4>
+        <p>免费，<b>06:00–22:00</b>，灯光约 21:30 熄灭。全国首条钢结构镂空悬空栈道，主轴 6.3km、<b>环线 19km</b>、10 个出入口。<br><b>3 号口（梅峰山地公园）进 → 5 号口（金牛山体育公园）出</b>，约 2 小时；3 号口段水上栈道最美，往 5 号口是连续下坡省力。<b>5 号口离地铁远</b>，回程见下条。</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">21:40</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>回酒店
+          <span class="tag">交通</span>
+          <span class="dur">机动</span></h4>
+        <p>5 号口在西侧，<b>返程公交</b>约 1 小时，或<b>打车约 30 分钟</b>，赶时间就打車。</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>福州四日 · 2026年10月3日（周六） — 10月6日（周二）</span><span>03</span></div>
+</div>
+<div class="page day-sheet-wrap">
+  <div class="sect"><div class="n">02</div><h2>Day 2 · 室内首选 · 马尾船政（博物馆 + 演艺）</h2>
+    <div class="hint"> 周日 · 雷阵雨 31/24℃</div></div>
+  <div class="day-note" style="border:1px solid #e8eef6;border-radius:5px;margin-bottom:12px"><b>全天有雨（12.9mm）但集中在傍晚</b>：09:00 晴 0%、12:00 毛毛雨 12%、15:00 小雨 39%、<b>18:00 阵雨 61%</b>。博物馆和剧场都在室内，雨不影响；15:40 返程时雨才起来，伞备好。<br><b>若 D1 决定对调，这天改去鼓岭</b>——10/4 上午山上基本无雨。</div>
+  <div class="tl" style="padding:0">
+    <div class="row key">
+      <div class="t">08:40</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>出发去马尾 + 博物馆
+          <span class="tag">必看</span>
+          <span class="dur">约 4 小时</span></h4>
+        <p><b>7686 船政文化城旅游专线</b>，一票制 <b>2 元</b>，全程沿闽江，约 1 小时。三坊七巷（澳门路）→ 光禄坊 → 白马河 → 南禅山 → 福四中 → 苍霞嘉兴园 → 青年广场 → 闽江之心 → <b>船政</b> → 罗星塔 → 马尾海关，<b>约每小时一班，9:00–18:00</b>。<br><b>博物馆国庆免预约</b>（平日才需分时约），假期开放 9:00–19:00 但 <b>17:00 后仅开一、二楼</b>。5 层里 3–5 楼最值得，趁早看全。</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">12:40</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>午餐
+          <span class="tag">吃</span>
+          <span class="dur">1 小时</span></h4>
+        <p>景区内餐饮一般，演出前简单解决，13:45 前到剧场。</p>
+      </div>
+    </div>
+    <div class="row key">
+      <div class="t">13:45</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>《最忆船政》入场（14:30–15:40）
+          <span class="tag">重点</span>
+          <span class="dur">2 小时</span></h4>
+        <p><b>一天四场</b>：<b>11:00 / 14:30 / 16:30 / 19:00</b>，每场约 70 分钟。<b>替你选了 14:30 场</b>（<b>13:45–14:15 入场</b>）——四场里唯一既逛得完博物馆又不至于摸黑赶车的：7686 回程末班 19:30，19:00 场演到 20:10 基本没车。<br>凭购票姓名到剧场出口换票，<b>迟到 5 分钟错过开场，谢绝退票</b>。票价 <b>238 元/人</b>。机修车间改造的折叠渐进式剧场，<b>420 个席位组成可移动「时光船」</b>，8 幕。<b>剧透就不写了。</b><br><b>看完顺路</b>：轮机车间、铁胁厂、绘事院、昭忠祠、活态保护展示区。<b>都是露天厂区，下雨得打伞</b>，雨大就缩短或直接回酒店。</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">15:40</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>返程回酒店
+          <span class="tag">交通</span>
+          <span class="dur">约 1 小时</span></h4>
+        <p>赶 <b>7686 回程</b>（马尾海关 16:15 / 17:10 / 18:20 / 19:30 多班）。<b>18:00 阵雨概率 73%</b>，伞备好。<br><b>若不想在外面吃</b>：酒店步行 15 分钟到<b>老药洲街</b>，夜市照常开（店家清单见 Day 3）。</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>福州四日 · 2026年10月3日（周六） — 10月6日（周二）</span><span>04</span></div>
+</div>
+<div class="page day-sheet-wrap">
+  <div class="sect"><div class="n">03</div><h2>Day 3 · 山上避暑 · 鼓岭</h2>
+    <div class="hint"> 周一 · 阵雨 24/22℃</div></div>
+  <div class="day-note" style="border:1px solid #e8eef6;border-radius:5px;margin-bottom:12px"><b>全天有雨（13.8mm）</b>，10:00 起下、全天湿，中午最盛、傍晚转好。<b>山上低 8–10℃</b>，外套别省。<b>若 D1 决定对调，这天改去鼓岭</b>——10/4 上午基本无雨。</div>
+  <div class="tl" style="padding:0">
+    <div class="row">
+      <div class="t">07:00</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>地铁1号线→2号线→鼓岭专线
+          <span class="tag">交通</span>
+          <span class="dur">约 1.5 小时</span></h4>
+        <p><b>地铁1号线</b>（酒店附近达道站上车）→ 换乘<b>地铁2号线</b>至<b>鼓山站 B 口</b>→ 步行 20 米到<b>鼓山公交总站</b>→ 转乘<b>「鼓岭旅游度假区公交专线」</b>直达山上，约 1.5 小时。<br>停靠：鼓山公交总站 → 埠兴村 → 鳝溪 → 鼓岭古道（东/西）→ 过仑村 → 大洋坪 → 下乖 → 三叉路 → 鼓岭柳杉王公园。<br><b>5–10月</b>：鼓山公交总站 <b>7:30–16:00</b>，柳杉王公园 <b>8:30–18:30</b>；<b>高峰 30 分钟、平峰 60 分钟一班</b>。<b>票价 15 元，可在微信/支付宝小程序购票</b>（建议提前买好）。</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">08:30</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>鼓岭：古厝人文线
+          <span class="tag">必逛</span>
+          <span class="dur">3–4 小时</span></h4>
+        <p>国家级旅游度假区，海拔 <b>750–800m</b>，<b>山上比市区低 8–10℃</b>（今天 17~20℃），务必带外套。<br><b>柳杉王公园（千年柳杉王）→ 历史文化展示馆 → 宜夏别墅 → 鼓岭教堂 → 加德纳纪念馆 → 鼓岭老街 → 鼓岭邮局</b>，约 3–4 小时。200 多幢老别墅。<br><b>鼓岭没有索道</b>——缆车在鼓山（涌泉寺那座）。</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">12:30</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>午餐 + 有余力：柱里 / 长田溪
+          <span class="tag">吃</span>
+          <span class="dur">2–3 小时</span></h4>
+        <p>鼓岭老街有农家菜，山上选择少、价格略高。<br>你判断得对——<b>鼓岭要半天，鼓山另需半天</b>，这天装不下鼓山。有余时可短途去柱里观日台或长田溪梯田。</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">15:30</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>鼓岭专线 下山 → 回酒店
+          <span class="tag">交通</span>
+          <span class="dur">约 1.5 小时</span></h4>
+        <p>专线<b>柳杉王公园方向末班 18:30</b>，30–60 分钟一班，余量充足。提前在<b>「e福州」或高德</b>查实时车况；山上叫车常需排队。</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">18:30</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>晚餐：老药洲街
+          <span class="tag">吃</span>
+          <span class="dur">1.5 小时</span></h4>
+        <p>酒店步行约 <b>1 公里 / 15 分钟</b>。<b>夜幕降临整条街才变成大排档</b>，烧烤、锅边、油条、虾酥一路吃过去。<br>必吃：<b>没牙伯花生汤店</b>（182 号，70+ 年，<b>只卖 5 样</b>——花生汤 4 元、芋泥 4 元、藕糕 2.5 元、糯米饭 2 元、花生糕 1 元，全点 13.5 元）、<b>老牌兵俤粉干卤味</b>（3 元/碗）、<b>原古街老牌炖罐</b>（猪脚 10 元起）、忠惠酱鸭捞化。<br><b>比达明路本地、价格低一档</b>，但<b>去晚了摊位会收</b>，别拖过 21:00。</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>福州四日 · 2026年10月3日（周六） — 10月6日（周二）</span><span>05</span></div>
+</div>
+<div class="page day-sheet-wrap">
+  <div class="sect"><div class="n">04</div><h2>Day 4 · 光影收官 · 烟台山 + 上下杭</h2>
+    <div class="hint"> 周二 · 阴·无降水 25/20℃</div></div>
+  <div class="day-note" style="border:1px solid #e8eef6;border-radius:5px;margin-bottom:12px"><b>四天里唯一零降水的一天</b>，天空最稳。<b>日落 17:44</b>，上下杭的灯光正好赶在天黑前。</div>
+  <div class="tl" style="padding:0">
+    <div class="row key">
+      <div class="t">07:30</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>出发去烟台山 → 旅拍（8:00–10:00）
+          <span class="tag">重点</span>
+          <span class="dur">约 2.5 小时</span></h4>
+        <p><b>地铁1号线「上藤站」B 出口</b>，出站即到，全程<b>约 30 分钟</b>。<b>8:00 整到即可</b>，不用更早——旅拍赶的就是清晨的光。<b>穿能走的鞋</b>，主路平但小巷陡。<br>烟台山风貌区 <b>798.3 亩、38 条街巷、191 栋历史建筑</b>，开埠后曾有 <b>17 国领事馆</b>、54 家洋行。<b>教堂门前银杏 12 月才金黄，10 月是绿的</b>。<br><b>人像机位备选</b>：① <b>石厝教堂</b>青石墙前侧身贴墙+回头，或坐台阶手撑下巴；② <b>梅坞顶观景台</b>背对镜头扶栏杆侧头，逆光拍剪影；③ <b>爱国路老洋楼</b>骑楼廊柱间低机位仰拍走姿；④ <b>仓前路街口</b>正面走+回头甩发。</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">10:00</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>自由漫步 + 午餐
+          <span class="tag">闲逛</span>
+          <span class="dur">2–3 小时</span></h4>
+        <p>拍完慢逛核心街区（坡道多、巷子陡，穿好走的鞋），就近在老洋楼改的咖啡馆/餐厅吃午饭。</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">13:30</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>上下杭
+          <span class="tag">必逛</span>
+          <span class="dur">约 2 小时</span></h4>
+        <p>国家 4A，<b>免费</b>。清末鼎盛期商铺 260+ 家，号称「十里洋场」，有<b>「福州传统商业博物馆」</b>之称。<br><b>三通桥 + 三捷河</b>（傍晚亮灯倒影最佳）、永德会馆、采峰别墅（复古机位）、杭肆·云集非遗市集。<b>舒叙茶馆</b>（星河巷8号）每晚<b>免费听福州评话</b>。地铁1号线<b>达道站 C 口 8–10 分钟</b>，离酒店 0.7km。</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">15:30</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>机动：还没逛的市区景点
+          <span class="tag">机动</span>
+          <span class="dur">1.5–2 小时</span></h4>
+        <p><b>还没去过</b>：<b>乌山</b>（2.5km，摩崖石刻）、<b>于山</b>（2.2km，九仙观）、<b>西禅寺</b>（3.9km）、<b>华林寺</b>（4.5km）、<b>西湖公园</b>（4.6km）——均需公交/地铁。<b>国家森林公园在 10km 外，今天别想。</b></p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="t">17:30</div>
+      <div class="rail"><div class="dot"></div></div>
+      <div class="body">
+        <h4>回酒店取行李 → 机场
+          <span class="tag">交通</span>
+          <span class="dur">约 1.5 小时</span></h4>
+        <p>上下杭离酒店近，取完行李走<b>「滨海快线」</b>（轨道交通）前往长乐机场，<b>全程约 1.5 小时，票价 16 元</b>。<br><b>20:00 的航班建议 18:00 前进站</b>：预留安检 + 国庆最后一天返程高峰的排队。</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>福州四日 · 2026年10月3日（周六） — 10月6日（周二）</span><span>06</span></div>
+</div>
+
+<div class="page">
+  <div class="sect"><div class="n">06</div><h2>行前清单</h2>
+    <div class="hint">出发前逐项打勾</div></div>
+  <ul class="cl">
+    <li><span class="when"><b>10/3 当天白天</b></span><span class="what"><b>最重要的一件事</b>：查最新预报 → 定 Day 2/Day 3 是否对调 → 再决定买哪天的《最忆船政》票（<b>238 元/人，14:30 场</b>）。<br><b>鼓岭户外怕雨、船政室内不怕雨</b>——晴天留给鼓岭。按 10/2 预报倾向对调（<b>鼓岭 10/4 上午基本无雨、气温高 8℃</b>，10/5 则全天湿），<b>但预报会变，当天再定</b>。</span></li>
+    <li><span class="when">买票</span><span class="what"><b>按对调结论买</b>——对调则买 <b>10/5</b>，不对调则买 <b>10/4</b>。热门场次易售罄，当天定完当天买。</span></li>
+    <li><span class="when">打包</span><span class="what">一次性雨衣、<b>厚外套</b>（鼓岭低 8–10℃）、<b>防滑鞋</b>（石阶遇雨很滑）、充电宝、<b>身份证</b>（林则徐纪念馆凭票取号）。<br><b>新版「交通联合」卡</b>（卡面有该标识，19 位卡号以 <b>3104 7700</b> 开头）福州可直接刷，市区地铁公交通用。</span></li>
+    <li><span class="when">出发前 3 天</span><span class="what"><b>小程序买好鼓岭专线票</b>（15 元），查两条专线实时班次（「e福州」或高德）：7686 三坊七巷 9:00–18:00；鼓岭专线 鼓山公交总站 <b>7:30–16:00</b> 上山、柳杉王公园 <b>8:30–18:30</b> 下山。</span></li>
+    <li><span class="when">没带卡</span><span class="what">支付宝搜「<b>福州公交</b>」领 <b>e福州电子公交卡</b>刷公交；搜「<b>福州地铁</b>」刷乘车码刷地铁。手机有电即可，一卡通不是必需品。</span></li>
+  </ul>
+
+  <div class="sect" style="margin-top:17px"><div class="n">07</div><h2>信息来源</h2></div>
+  <ul class="refs">
+<li>· 船政博物馆国庆开放公告（免预约 / 假期 9:00–19:00）—「船政文化博物馆」2026-09-20</li><li>· 7686 专线线路与时刻 — 福州市 / 马尾区人民政府公告</li><li>· 鼓岭公交专线运营方案 — 福州市人民政府公告（2025-11-03）</li><li>· 《最忆船政》场次与票价 — 去哪儿 / Klook 票务页</li><li>· 福道入口与交通 — 福州本地宝</li><li>· 天气数据 — Open-Meteo（鼓岭与福州市区逐时）</li>  </ul>
+
+  <div class="warn" style="margin-top:12px">
+    <b>两点实话</b>：① 石厝教堂那棵银杏 <b>12 月才变金黄，10 月是绿的</b>，别抱错期待；
+    ② 10/1–10/7 是国庆黄金周，三坊七巷/上下杭/烟台山大概率人山人海，<b>早拍和错时段是唯一解法</b>。
+  </div>
+  <div class="foot"><span>福州四日 · 2026年10月3日（周六） — 10月6日（周二）</span><span>07</span></div>
+</div>
+
+</body></html>
