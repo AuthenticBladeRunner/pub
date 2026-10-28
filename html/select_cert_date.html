@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>领证吉日选择 · 黄历版</title>
+<style>
+  :root {
+    --primary: #7d1f18;
+    --accent: #b03a2e;
+    --bg: #faf8f5;
+    --card: #fff;
+    --text: #2b2622;
+    --muted: #6b5b4e;
+    --border: #ddd0c2;
+    --ok: #2e7d32;
+    --warn: #e65100;
+    --bad: #b71c1c;
+    --info: #1565c0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1614; --card: #231d1a; --text: #e8e0d8; --muted: #b8a898;
+      --border: #3d332a; --primary: #e8a598; --accent: #d4604f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "LXGW Neo ZhiSong Plus", "Noto Serif SC", "Source Han Serif CN", serif;
+    font-size: 15px; line-height: 1.7; color: var(--text);
+    background: var(--bg); margin: 0; padding: 24px;
+  }
+  .container { max-width: 1180px; margin: 0 auto; }
+  h1 { font-family: "LXGW Neo ZhiSong Plus", "Noto Serif SC", serif; font-size: 2.1rem; color: var(--primary); text-align: center; margin: 0 0 8px; letter-spacing: .08em; }
+  .subtitle { text-align: center; color: var(--muted); margin-bottom: 24px; font-size: .95rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+  .card h2 { font-size: 1.15rem; color: var(--primary); border-bottom: 2px solid var(--accent); padding-bottom: 8px; margin: 0 0 16px; display: flex; align-items: center; gap: 8px; }
+  .card h2::before { content: "囍"; color: var(--accent); font-size: 1.3rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: .88rem; color: var(--muted); font-weight: 500; }
+  .field input, .field select { padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--text); }
+  .field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(176,58,46,.15); }
+  .zodiac-badge { display: inline-block; background: var(--accent); color: #fff; padding: 2px 9px; border-radius: 12px; font-size: .78rem; font-weight: 600; white-space: nowrap; }
+  .pill { display: inline-block; color: var(--muted); border: 1px solid var(--border); padding: 1px 8px; border-radius: 12px; font-size: .75rem; white-space: nowrap; }
+  .row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-top: 8px; }
+  .btn { padding: 11px 22px; border: none; border-radius: 6px; font-family: inherit; font-size: 1rem; font-weight: 600; cursor: pointer; transition: transform .05s, box-shadow .15s; }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { box-shadow: 0 4px 14px rgba(176,58,46,.35); }
+  .btn-secondary { background: var(--border); color: var(--text); }
+  .btn-secondary:hover { filter: brightness(.94); }
+  .btn:disabled { opacity: .5; cursor: wait; }
+  .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin: 12px 0 0; font-size: .9rem; color: var(--muted); }
+  .controls label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .table-wrap { overflow-x: auto; }
+  .result-table { width: 100%; border-collapse: collapse; font-size: .86rem; min-width: 900px; }
+  .result-table th, .result-table td { border: 1px solid var(--border); padding: 8px 9px; text-align: left; vertical-align: top; }
+  .result-table th { background: #f5efe8; font-weight: 600; color: var(--primary); white-space: nowrap; }
+  .result-table tbody tr:nth-child(even) td { background: #faf7f4; }
+  .result-table tbody tr:hover td { background: #f0ebe3; }
+  .result-table td.date { font-weight: 600; white-space: nowrap; }
+  .score { font-weight: 700; font-size: 1rem; }
+  .score.high { color: var(--ok); }
+  .score.mid { color: #ad7700; }
+  .score.low { color: var(--warn); }
+  .score.bad { color: var(--bad); }
+  .tags { display: flex; flex-direction: column; gap: 3px; }
+  .tag-line { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: .72rem; line-height: 1.6; }
+  .tag.ok { background: #e8f5e9; color: var(--ok); }
+  .tag.warn { background: #fff3e0; color: var(--warn); }
+  .tag.bad { background: #ffebee; color: var(--bad); }
+  .tag.info { background: #e3f2fd; color: var(--info); }
+  .yes { color: var(--ok); font-weight: 600; }
+  .no { color: var(--bad); font-weight: 600; }
+  .workday { color: var(--ok); font-weight: 600; }
+  .weekend { color: var(--warn); font-weight: 600; }
+  .note { background: #faf6f1; border-left: 3px solid var(--accent); padding: 12px 16px; font-size: .88rem; color: var(--muted); margin-top: 14px; border-radius: 0 6px 6px 0; }
+  .note strong { color: var(--primary); }
+  .hidden { display: none !important; }
+  .banner { padding: 16px; border-radius: 8px; margin-bottom: 20px; font-size: .92rem; }
+  .banner.error { background: #ffebee; color: var(--bad); border: 1px solid #ffcdd2; }
+  .banner.ok { background: #e8f5e9; color: var(--ok); border: 1px solid #c8e6c9; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; font-size: .82rem; color: var(--muted); }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-color { width: 14px; height: 14px; border-radius: 3px; }
+  footer { text-align: center; color: var(--muted); font-size: .82rem; margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); }
+  details summary { cursor: pointer; color: var(--primary); font-weight: 600; }
+  @media print {
+    .card.input-card, .btn, .legend, footer, .subtitle, .controls, .banner { display: none !important; }
+    .card { box-shadow: none; border-color: #ccc; page-break-inside: avoid; }
+    body { padding: 0; background: #fff; }
+    .container { max-width: 100%; }
+    .result-table { font-size: 9pt; min-width: 0; }
+    .table-wrap { overflow: visible; }
+  }
+  @page { margin: 12mm; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>领证吉日选择</h1>
+  <p class="subtitle">黄历全套：干支 · 建除十二神 · 黄道黑道 · 吉神凶煞 · 宜忌 · 宿 · 四离四绝 · 杨公忌 · 三娘煞</p>
+
+  <div id="banner" class="banner hidden"></div>
+
+  <div class="card input-card">
+    <h2>家庭成员生辰（公历）</h2>
+    <div class="grid" id="personFields"></div>
+    <div class="row">
+      <div class="field" style="flex:1;min-width:170px;">
+        <label>搜索开始</label>
+        <input type="date" id="startDate">
+      </div>
+      <div class="field" style="flex:1;min-width:170px;">
+        <label>搜索结束</label>
+        <input type="date" id="endDate">
+      </div>
+    </div>
+    <div class="row" style="margin-top:16px;">
+      <button class="btn btn-primary" id="calcBtn">计算推荐吉日</button>
+      <button class="btn btn-secondary" id="printBtn" disabled>打印 / 导出 PDF</button>
+      <button class="btn btn-secondary" id="saveBtn">保存配置</button>
+      <button class="btn btn-secondary" id="loadBtn">恢复配置</button>
+    </div>
+    <div class="controls">
+      <label><input type="checkbox" id="onlyYi"> 只看「宜嫁娶」</label>
+      <label><input type="checkbox" id="onlyWork"> 只看民政局工作日（周一至周六）</label>
+      <label>显示条数
+        <select id="topN">
+          <option value="20">20</option>
+          <option value="40" selected>40</option>
+          <option value="80">80</option>
+          <option value="9999">全部</option>
+        </select>
+      </label>
+    </div>
+    <div class="note">
+      <strong>数据说明：</strong>黄历数据由 <code>build_cert_date_almanac.py</code> 用 lunar_python（寿星天文历）预计算，
+      已直接内嵌本页，覆盖 <span id="coverRange">2026-10-28 ~ 2027-06-30</span>，可离线使用，也可直接放 GitHub Pages。
+      超出覆盖范围请在源目录重跑生成脚本。
+    </div>
+  </div>
+
+  <div class="card hidden" id="resultCard">
+    <h2 id="resultTitle">推荐吉日</h2>
+    <div class="table-wrap">
+      <table class="result-table" id="resultTable">
+        <thead>
+          <tr>
+            <th>公历</th><th>农历</th><th>日干支</th><th>建除</th><th>黄道</th>
+            <th>宿</th><th>宜/忌嫁娶</th><th>得分</th><th>星期</th><th>工作日</th><th>神煞与理由</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-color" style="background:#e8f5e9;border:1px solid #c8e6c9;"></span> 吉/加分</div>
+      <div class="legend-item"><span class="legend-color" style="background:#fff3e0;border:1px solid #ffe0b2;"></span> 需注意</div>
+      <div class="legend-item"><span class="legend-color" style="background:#ffebee;border:1px solid #ffcdd2;"></span> 忌/大凶</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>评分规则（想看就看，不想看拉倒）</h2>
+    <details open>
+      <summary>黄历部分（重权）</summary>
+      <div class="note" style="margin-top:10px;">
+        宜嫁娶 +30；忌嫁娶 −60。<br>
+        建除：除/定/执/危/成/开 +12；建/平/满/收/闭 −12；破日 −30。<br>
+        黄道 +12；黑道 −12。<br>
+        二十八宿：吉 +5；凶 −5。<br>
+        吉神：天德、月德、天喜、三合、六合、天赦、不将等每个 +5（上限 +20）；普通吉神每个 +1（上限 +8）。<br>
+        凶煞：月破 −20；杨公忌、四离、四绝、十恶大败 −15；三娘煞、红沙、月忌、往亡等 −8；其余每个 −2（上限 −45）。<br>
+        农历三、七、九月 −40。
+      </div>
+    </details>
+    <details>
+      <summary>现实部分（别忘了你是去领证，不是去修仙）</summary>
+      <div class="note" style="margin-top:10px;">
+        冲新人生肖 −25/人；冲父母生肖 −10/人。<br>
+        撞任何家庭成员生日正日 −30。<br>
+        冲新人生日柱（候选人日支冲新人生日支）−15/人。<br>
+        民政局工作日（周一至周六）+10；周日 −10（法定节假日请自行核对）。<br>
+        公历尾数 8 +5；周五/周六 +5。
+      </div>
+    </details>
+  </div>
+
+  <footer>
+    本工具仅供参考，不构成任何命理建议，择日最终以两家长辈商定为准。<br>
+    黄历宜忌为通行说法，各书略有出入；法定节假日以官方发布为准。<br>
+    数据源：lunar_python（6tail / 寿星天文历系）。
+  </footer>
+</div>
+
+<script id="almanac-data" type="application/json">{"meta":{"start":"2026-10-28","end":"2027-06-30","source":"lunar_python (6tail / 寿星天文历系) + 传统凶日规则补齐","note":"宜忌为黄历通行说法，仅供筛选参考；法定节假日以官方为准。"},"days":{"2026-10-28":{"l":"九月十九","lm":9,"ld":19,"leap":false,"dg":"乙亥","zx":"除","ts":"玉堂","tt":"黄道","xiu":"壁","xl":"吉","chong":"蛇","yi":false,"ji":true,"js":["相日","吉期","五富","敬安","玉堂"],"xs":["劫煞","五虚","土符","重日"],"jq":""},"2026-10-29":{"l":"九月二十","lm":9,"ld":20,"leap":false,"dg":"丙子","zx":"满","ts":"天牢","tt":"黑道","xiu":"奎","xl":"凶","chong":"马","yi":false,"ji":false,"js":["天德","月德","时德","民日","天巫","福德","普护","鸣吠对"],"xs":["灾煞","天火","大煞","归忌","触水龙","天牢"],"jq":""},"2026-10-30":{"l":"九月廿一","lm":9,"ld":21,"leap":false,"dg":"丁丑","zx":"平","ts":"玄武","tt":"黑道","xiu":"娄","xl":"吉","chong":"羊","yi":false,"ji":true,"js":["母仓","福生"],"xs":["天罡","死神","月煞","月虚","元武","红沙"],"jq":""},"2026-10-31":{"l":"九月廿二","lm":9,"ld":22,"leap":false,"dg":"戊寅","zx":"定","ts":"司命","tt":"黄道","xiu":"胃","xl":"吉","chong":"猴","yi":false,"ji":false,"js":["阳德","三合","临日","时阴","五合","司命"],"xs":["月厌","地火","死气","九坎","九焦","复日","孤辰","三娘煞"],"jq":""},"2026-11-01":{"l":"九月廿三","lm":9,"ld":23,"leap":false,"dg":"己卯","zx":"执","ts":"勾陈","tt":"黑道","xiu":"昴","xl":"凶","chong":"鸡","yi":true,"ji":false,"js":["天恩","六合","圣心","五合"],"xs":["大时","大败","咸池","小耗","五虚","勾陈","月忌"],"jq":""},"2026-11-02":{"l":"九月廿四","lm":9,"ld":24,"leap":false,"dg":"庚辰","zx":"破","ts":"青龙","tt":"黄道","xiu":"毕","xl":"吉","chong":"狗","yi":false,"ji":true,"js":["天恩","母仓","月恩","不将","益后","解神","青龙"],"xs":["月破","大耗","四击","九空","往亡","十恶大败"],"jq":""},"2026-11-03":{"l":"九月廿五","lm":9,"ld":25,"leap":false,"dg":"辛巳","zx":"危","ts":"明堂","tt":"黄道","xiu":"觜","xl":"凶","chong":"猪","yi":false,"ji":true,"js":["天德合","月德合","天恩","阴德","不将","续世","明堂"],"xs":["游祸","天贼","血忌","重日","杨公忌","十恶大败"],"jq":""},"2026-11-04":{"l":"九月廿六","lm":9,"ld":26,"leap":false,"dg":"壬午","zx":"成","ts":"天刑","tt":"黑道","xiu":"参","xl":"吉","chong":"鼠","yi":true,"ji":false,"js":["月空","天恩","四相","三合","天喜","天医","天仓","不将","要安","鸣吠"],"xs":["天刑"],"jq":""},"2026-11-05":{"l":"九月廿七","lm":9,"ld":27,"leap":false,"dg":"癸未","zx":"收","ts":"朱雀","tt":"黑道","xiu":"井","xl":"吉","chong":"牛","yi":false,"ji":false,"js":["天恩","母仓","四相","不将","玉宇"],"xs":["河魁","月刑","五虚","触水龙","朱雀","三娘煞"],"jq":""},"2026-11-06":{"l":"九月廿八","lm":9,"ld":28,"leap":false,"dg":"甲申","zx":"开","ts":"金匮","tt":"黄道","xiu":"鬼","xl":"凶","chong":"虎","yi":true,"ji":false,"js":["王日","驿马","天后","时阳","生气","六仪","金堂","除神","金匮","鸣吠"],"xs":["厌对","招摇","五离","四绝"],"jq":""},"2026-11-07":{"l":"九月廿九","lm":9,"ld":29,"leap":false,"dg":"乙酉","zx":"开","ts":"朱雀","tt":"黑道","xiu":"柳","xl":"凶","chong":"兔","yi":false,"ji":false,"js":["天德","母仓","月恩","四相","时阳","生气","圣心","除神","鸣吠"],"xs":["灾煞","天火","五离","朱雀"],"jq":"立冬"},"2026-11-08":{"l":"九月三十","lm":9,"ld":30,"leap":false,"dg":"丙戌","zx":"闭","ts":"金匮","tt":"黄道","xiu":"星","xl":"凶","chong":"龙","yi":false,"ji":true,"js":["益后","金匮"],"xs":["月煞","月虚","血支","五虚"],"jq":""},"2026-11-09":{"l":"十月初一","lm":10,"ld":1,"leap":false,"dg":"丁亥","zx":"建","ts":"天德","tt":"黄道","xiu":"张","xl":"吉","chong":"蛇","yi":false,"ji":false,"js":["王日","续世","宝光"],"xs":["月建","小时","土府","月刑","九坎","九焦","血忌","重日","十恶大败"],"jq":""},"2026-11-10":{"l":"十月初二","lm":10,"ld":2,"leap":false,"dg":"戊子","zx":"除","ts":"白虎","tt":"黑道","xiu":"翼","xl":"凶","chong":"马","yi":true,"ji":false,"js":["官日","天马","吉期","要安"],"xs":["大时","大败","咸池","白虎","岁薄"],"jq":""},"2026-11-11":{"l":"十月初三","lm":10,"ld":3,"leap":false,"dg":"己丑","zx":"满","ts":"玉堂","tt":"黄道","xiu":"轸","xl":"吉","chong":"羊","yi":false,"ji":true,"js":["月德合","月空","时德","相日","六合","五富","不将","金堂","五合","鸣吠对"],"xs":["河魁","死神","游祸","五虚","天牢","三娘煞","十恶大败"],"jq":""},"2026-11-12":{"l":"十月初四","lm":10,"ld":4,"leap":false,"dg":"庚寅","zx":"平","ts":"天牢","tt":"黑道","xiu":"角","xl":"吉","chong":"猴","yi":true,"ji":false,"js":["天德合","月空","时德","相日","六合","五富","不将","金堂","五合","鸣吠对"],"xs":["河魁","死神","游祸","五虚","天牢"],"jq":""},"2026-11-13":{"l":"十月初五","lm":10,"ld":5,"leap":false,"dg":"辛卯","zx":"定","ts":"玄武","tt":"黑道","xiu":"亢","xl":"凶","chong":"鸡","yi":true,"ji":false,"js":["阴德","民日","三合","时阴","不将","五合","鸣吠对"],"xs":["死气","元武","月忌"],"jq":""},"2026-11-14":{"l":"十月初六","lm":10,"ld":6,"leap":false,"dg":"壬辰","zx":"执","ts":"司命","tt":"黄道","xiu":"氐","xl":"凶","chong":"狗","yi":false,"ji":true,"js":["阳德","不将","解神","司命"],"xs":["小耗","天贼","五墓","土符","复日"],"jq":""},"2026-11-15":{"l":"十月初七","lm":10,"ld":7,"leap":false,"dg":"癸巳","zx":"破","ts":"勾陈","tt":"黑道","xiu":"房","xl":"吉","chong":"猪","yi":false,"ji":true,"js":["驿马","天后","天仓","不将","敬安"],"xs":["月破","大耗","重日","勾陈","三娘煞"],"jq":""},"2026-11-16":{"l":"十月初八","lm":10,"ld":8,"leap":false,"dg":"甲午","zx":"危","ts":"青龙","tt":"黄道","xiu":"心","xl":"凶","chong":"鼠","yi":true,"ji":false,"js":["月德","四相","普护","青龙","鸣吠"],"xs":["天吏","致死","五虚"],"jq":""},"2026-11-17":{"l":"十月初九","lm":10,"ld":9,"leap":false,"dg":"乙未","zx":"成","ts":"明堂","tt":"黄道","xiu":"尾","xl":"吉","chong":"牛","yi":false,"ji":true,"js":["天德","月恩","四相","三合","临日","天喜","天医","六仪","福生","明堂"],"xs":["厌对","招摇","四击","往亡"],"jq":""},"2026-11-18":{"l":"十月初十","lm":10,"ld":10,"leap":false,"dg":"丙申","zx":"收","ts":"天刑","tt":"黑道","xiu":"箕","xl":"吉","chong":"虎","yi":false,"ji":true,"js":["母仓","除神","鸣吠"],"xs":["天罡","劫煞","月害","五离","天刑","十恶大败"],"jq":""},"2026-11-19":{"l":"十月十一","lm":10,"ld":11,"leap":false,"dg":"丁酉","zx":"开","ts":"朱雀","tt":"黑道","xiu":"斗","xl":"吉","chong":"兔","yi":true,"ji":false,"js":["母仓","时阳","生气","圣心","除神","鸣吠"],"xs":["灾煞","天火","五离","朱雀","红沙"],"jq":""},"2026-11-20":{"l":"十月十二","lm":10,"ld":12,"leap":false,"dg":"戊戌","zx":"闭","ts":"金匮","tt":"黄道","xiu":"牛","xl":"凶","chong":"龙","yi":true,"ji":false,"js":["益后","金匮"],"xs":["月煞","月虚","血支","五虚","绝阳","十恶大败"],"jq":""},"2026-11-21":{"l":"十月十三","lm":10,"ld":13,"leap":false,"dg":"己亥","zx":"建","ts":"天德","tt":"黄道","xiu":"女","xl":"凶","chong":"蛇","yi":false,"ji":true,"js":["月德合","王日","续世","宝光"],"xs":["月建","小时","土府","月刑","九坎","九焦","血忌","重日","小会","纯阴","三娘煞"],"jq":""},"2026-11-22":{"l":"十月十四","lm":10,"ld":14,"leap":false,"dg":"庚子","zx":"除","ts":"白虎","tt":"黑道","xiu":"虚","xl":"凶","chong":"马","yi":true,"ji":false,"js":["天德合","月空","官日","天马","吉期","要安","鸣吠对"],"xs":["大时","大败","咸池","白虎","月忌"],"jq":"小雪"},"2026-11-23":{"l":"十月十五","lm":10,"ld":15,"leap":false,"dg":"辛丑","zx":"满","ts":"玉堂","tt":"黄道","xiu":"危","xl":"凶","chong":"羊","yi":false,"ji":true,"js":["守日","天巫","福德","玉宇","玉堂"],"xs":["月厌","地火","九空","大煞","归忌","行狠"],"jq":""},"2026-11-24":{"l":"十月十六","lm":10,"ld":16,"leap":false,"dg":"壬寅","zx":"平","ts":"天牢","tt":"黑道","xiu":"室","xl":"吉","chong":"猴","yi":false,"ji":false,"js":["天愿","时德","相日","六合","五富","不将","金堂","五合","鸣吠对"],"xs":["河魁","死神","游祸","五虚","复日","天牢"],"jq":""},"2026-11-25":{"l":"十月十七","lm":10,"ld":17,"leap":false,"dg":"癸卯","zx":"定","ts":"玄武","tt":"黑道","xiu":"壁","xl":"吉","chong":"鸡","yi":true,"ji":false,"js":["阴德","民日","三合","时阴","不将","五合","鸣吠对"],"xs":["死气","元武"],"jq":""},"2026-11-26":{"l":"十月十八","lm":10,"ld":18,"leap":false,"dg":"甲辰","zx":"执","ts":"司命","tt":"黄道","xiu":"奎","xl":"凶","chong":"狗","yi":true,"ji":false,"js":["月德","四相","阳德","解神","司命"],"xs":["小耗","天贼","土符","三娘煞","十恶大败"],"jq":""},"2026-11-27":{"l":"十月十九","lm":10,"ld":19,"leap":false,"dg":"乙巳","zx":"破","ts":"勾陈","tt":"黑道","xiu":"娄","xl":"吉","chong":"猪","yi":false,"ji":true,"js":["天德","月恩","四相","驿马","天后","天仓","敬安"],"xs":["月破","大耗","重日","勾陈","十恶大败"],"jq":""},"2026-11-28":{"l":"十月二十","lm":10,"ld":20,"leap":false,"dg":"丙午","zx":"危","ts":"青龙","tt":"黄道","xiu":"胃","xl":"吉","chong":"鼠","yi":false,"ji":true,"js":["普护","青龙","鸣吠"],"xs":["天吏","致死","四废","五虚"],"jq":""},"2026-11-29":{"l":"十月廿一","lm":10,"ld":21,"leap":false,"dg":"丁未","zx":"成","ts":"明堂","tt":"黄道","xiu":"昴","xl":"凶","chong":"牛","yi":false,"ji":true,"js":["三合","临日","天喜","天医","六仪","福生","明堂"],"xs":["厌对","招摇","四击","往亡","八专"],"jq":""},"2026-11-30":{"l":"十月廿二","lm":10,"ld":22,"leap":false,"dg":"戊申","zx":"收","ts":"天刑","tt":"黑道","xiu":"毕","xl":"吉","chong":"虎","yi":false,"ji":true,"js":["母仓","除神"],"xs":["天罡","劫煞","月害","地囊","五离","天刑","三娘煞"],"jq":""},"2026-12-01":{"l":"十月廿三","lm":10,"ld":23,"leap":false,"dg":"己酉","zx":"开","ts":"朱雀","tt":"黑道","xiu":"觜","xl":"凶","chong":"兔","yi":false,"ji":false,"js":["月德","天恩","母仓","时阳","生气","圣心","除神","鸣吠"],"xs":["灾煞","天火","五离","朱雀","杨公忌","月忌","红沙"],"jq":""},"2026-12-02":{"l":"十月廿四","lm":10,"ld":24,"leap":false,"dg":"庚戌","zx":"闭","ts":"金匮","tt":"黄道","xiu":"参","xl":"吉","chong":"龙","yi":false,"ji":true,"js":["天德合","月空","天恩","益后","金匮"],"xs":["月煞","月虚","血支","五虚"],"jq":""},"2026-12-03":{"l":"十月廿五","lm":10,"ld":25,"leap":false,"dg":"辛亥","zx":"建","ts":"天德","tt":"黄道","xiu":"井","xl":"吉","chong":"蛇","yi":false,"ji":false,"js":["天恩","王日","续世","宝光"],"xs":["月建","小时","土府","月刑","九坎","九焦","血忌","重日"],"jq":""},"2026-12-04":{"l":"十月廿六","lm":10,"ld":26,"leap":false,"dg":"壬子","zx":"除","ts":"白虎","tt":"黑道","xiu":"鬼","xl":"凶","chong":"马","yi":true,"ji":false,"js":["天恩","官日","天马","吉期","要安","鸣吠对"],"xs":["大时","大败","咸池","四忌","六蛇","复日","白虎","岁薄"],"jq":""},"2026-12-05":{"l":"十月廿七","lm":10,"ld":27,"leap":false,"dg":"癸丑","zx":"满","ts":"玉堂","tt":"黄道","xiu":"柳","xl":"凶","chong":"羊","yi":false,"ji":true,"js":["天恩","守日","天巫","福德","玉宇","玉堂"],"xs":["月厌","地火","九空","大煞","归忌","八专","触水龙","了戾","阴错","三娘煞"],"jq":""},"2026-12-06":{"l":"十月廿八","lm":10,"ld":28,"leap":false,"dg":"甲寅","zx":"平","ts":"天牢","tt":"黑道","xiu":"星","xl":"凶","chong":"猴","yi":false,"ji":false,"js":["月德","四相","时德","相日","六合","五富","金堂","五合","鸣吠对"],"xs":["河魁","死神","游祸","五虚","八风","八专","天牢"],"jq":""},"2026-12-07":{"l":"十月廿九","lm":10,"ld":29,"leap":false,"dg":"乙卯","zx":"平","ts":"玉堂","tt":"黄道","xiu":"张","xl":"吉","chong":"鸡","yi":false,"ji":false,"js":["四相","民日","五合","玉堂","鸣吠对"],"xs":["天罡","死神","月刑","天吏","致死","天贼"],"jq":"大雪"},"2026-12-08":{"l":"十月三十","lm":10,"ld":30,"leap":false,"dg":"丙辰","zx":"定","ts":"天牢","tt":"黑道","xiu":"翼","xl":"凶","chong":"狗","yi":false,"ji":true,"js":["月空","三合","临日","时阴","天仓","圣心"],"xs":["死气","天牢"],"jq":""},"2026-12-09":{"l":"冬月初一","lm":11,"ld":1,"leap":false,"dg":"丁巳","zx":"执","ts":"玄武","tt":"黑道","xiu":"轸","xl":"吉","chong":"猪","yi":false,"ji":false,"js":["月德合","五富","不将","益后"],"xs":["劫煞","小耗","四废","重日","元武","红沙"],"jq":""},"2026-12-10":{"l":"冬月初二","lm":11,"ld":2,"leap":false,"dg":"戊午","zx":"破","ts":"司命","tt":"黄道","xiu":"角","xl":"吉","chong":"鼠","yi":false,"ji":false,"js":["阳德","六仪","续世","解神","司命"],"xs":["月破","大耗","灾煞","天火","厌对","招摇","五虚","血忌"],"jq":""},"2026-12-11":{"l":"冬月初三","lm":11,"ld":3,"leap":false,"dg":"己未","zx":"危","ts":"勾陈","tt":"黑道","xiu":"亢","xl":"凶","chong":"牛","yi":false,"ji":false,"js":["要安"],"xs":["月煞","月虚","月害","四击","八专","勾陈","三娘煞"],"jq":""},"2026-12-12":{"l":"冬月初四","lm":11,"ld":4,"leap":false,"dg":"庚申","zx":"成","ts":"青龙","tt":"黄道","xiu":"氐","xl":"凶","chong":"虎","yi":false,"ji":false,"js":["母仓","三合","天喜","天医","玉宇","除神","青龙","鸣吠"],"xs":["九坎","九焦","土符","大煞","五离","八专"],"jq":""},"2026-12-13":{"l":"冬月初五","lm":11,"ld":5,"leap":false,"dg":"辛酉","zx":"收","ts":"明堂","tt":"黄道","xiu":"房","xl":"吉","chong":"兔","yi":false,"ji":true,"js":["母仓","金堂","除神","明堂","鸣吠"],"xs":["河魁","大时","大败","咸池","四耗","地囊","五离","月忌"],"jq":""},"2026-12-14":{"l":"冬月初六","lm":11,"ld":6,"leap":false,"dg":"壬戌","zx":"开","ts":"天刑","tt":"黑道","xiu":"心","xl":"凶","chong":"龙","yi":false,"ji":true,"js":["月德","时阳","生气"],"xs":["五虚","九空","往亡","天刑"],"jq":""},"2026-12-15":{"l":"冬月初七","lm":11,"ld":7,"leap":false,"dg":"癸亥","zx":"闭","ts":"朱雀","tt":"黑道","xiu":"尾","xl":"吉","chong":"蛇","yi":false,"ji":true,"js":["王日"],"xs":["游祸","血支","四穷","六蛇","复日","重日","朱雀","三娘煞","十恶大败"],"jq":""},"2026-12-16":{"l":"冬月初八","lm":11,"ld":8,"leap":false,"dg":"甲子","zx":"建","ts":"金匮","tt":"黄道","xiu":"箕","xl":"吉","chong":"马","yi":false,"ji":false,"js":["天恩","天赦","月恩","四相","官日","敬安","金匮"],"xs":["月建","小时","土府","月厌","地火"],"jq":""},"2026-12-17":{"l":"冬月初九","lm":11,"ld":9,"leap":false,"dg":"乙丑","zx":"除","ts":"天德","tt":"黄道","xiu":"斗","xl":"吉","chong":"羊","yi":true,"ji":false,"js":["天恩","四相","阴德","守日","吉期","六合","普护","宝光"],"xs":["三丧","鬼哭"],"jq":""},"2026-12-18":{"l":"冬月初十","lm":11,"ld":10,"leap":false,"dg":"丙寅","zx":"满","ts":"白虎","tt":"黑道","xiu":"牛","xl":"凶","chong":"猴","yi":false,"ji":true,"js":["月空","天恩","时德","相日","驿马","天后","天马","天巫","福德","福生","五合","鸣吠对"],"xs":["五虚","归忌","白虎"],"jq":""},"2026-12-19":{"l":"冬月十一","lm":11,"ld":11,"leap":false,"dg":"丁卯","zx":"平","ts":"玉堂","tt":"黄道","xiu":"女","xl":"凶","chong":"鸡","yi":false,"ji":true,"js":["月德合","天恩","民日","不将","五合","玉堂","鸣吠对"],"xs":["天罡","死神","致死","天贼"],"jq":""},"2026-12-20":{"l":"冬月十二","lm":11,"ld":12,"leap":false,"dg":"戊辰","zx":"定","ts":"天牢","tt":"黑道","xiu":"虚","xl":"凶","chong":"狗","yi":false,"ji":false,"js":["天恩","三合","临日","时阴","天仓","圣心"],"xs":["死气","天牢"],"jq":""},"2026-12-21":{"l":"冬月十三","lm":11,"ld":13,"leap":false,"dg":"己巳","zx":"执","ts":"玄武","tt":"黑道","xiu":"危","xl":"凶","chong":"猪","yi":true,"ji":false,"js":["五富","不将","益后"],"xs":["劫煞","小耗","重日","元武","三娘煞","红沙","四离"],"jq":""},"2026-12-22":{"l":"冬月十四","lm":11,"ld":14,"leap":false,"dg":"庚午","zx":"破","ts":"司命","tt":"黄道","xiu":"室","xl":"吉","chong":"鼠","yi":false,"ji":false,"js":["五富","六仪","续世","解神","司命","鸣吠"],"xs":["月破","大耗","灾煞","天火","厌对","招摇","五虚","血忌","月忌"],"jq":"冬至"},"2026-12-23":{"l":"冬月十五","lm":11,"ld":15,"leap":false,"dg":"辛未","zx":"危","ts":"勾陈","tt":"黑道","xiu":"壁","xl":"吉","chong":"牛","yi":false,"ji":false,"js":["要安"],"xs":["月煞","月虚","月害","四击","勾陈"],"jq":""},"2026-12-24":{"l":"冬月十六","lm":11,"ld":16,"leap":false,"dg":"壬申","zx":"成","ts":"青龙","tt":"黄道","xiu":"奎","xl":"凶","chong":"虎","yi":true,"ji":false,"js":["月德","母仓","三合","天喜","天医","玉宇","除神","青龙","鸣吠"],"xs":["九坎","九焦","土符","大煞","五离","十恶大败"],"jq":""},"2026-12-25":{"l":"冬月十七","lm":11,"ld":17,"leap":false,"dg":"癸酉","zx":"收","ts":"明堂","tt":"黄道","xiu":"娄","xl":"吉","chong":"兔","yi":false,"ji":false,"js":["母仓","金堂","除神","明堂","鸣吠"],"xs":["河魁","大时","大败","咸池","复日","五离"],"jq":""},"2026-12-26":{"l":"冬月十八","lm":11,"ld":18,"leap":false,"dg":"甲戌","zx":"开","ts":"天刑","tt":"黑道","xiu":"胃","xl":"吉","chong":"龙","yi":false,"ji":true,"js":["月恩","四相","时阳","生气"],"xs":["五虚","八风","九空","往亡","天刑","三娘煞"],"jq":""},"2026-12-27":{"l":"冬月十九","lm":11,"ld":19,"leap":false,"dg":"乙亥","zx":"闭","ts":"朱雀","tt":"黑道","xiu":"昴","xl":"凶","chong":"蛇","yi":false,"ji":true,"js":["四相","王日"],"xs":["游祸","血支","重日","朱雀"],"jq":""},"2026-12-28":{"l":"冬月二十","lm":11,"ld":20,"leap":false,"dg":"丙子","zx":"建","ts":"金匮","tt":"黄道","xiu":"毕","xl":"吉","chong":"马","yi":false,"ji":true,"js":["月空","官日","敬安","金匮","鸣吠对"],"xs":["月建","小时","土府","月厌","地火","触水龙"],"jq":""},"2026-12-29":{"l":"冬月廿一","lm":11,"ld":21,"leap":false,"dg":"丁丑","zx":"除","ts":"天德","tt":"黄道","xiu":"觜","xl":"凶","chong":"羊","yi":false,"ji":false,"js":["月德合","阴德","守日","吉期","六合","不将","普护","宝光"],"xs":["三丧","鬼哭","大退","杨公忌"],"jq":""},"2026-12-30":{"l":"冬月廿二","lm":11,"ld":22,"leap":false,"dg":"戊寅","zx":"满","ts":"白虎","tt":"黑道","xiu":"参","xl":"吉","chong":"猴","yi":false,"ji":true,"js":["时德","相日","驿马","天后","天马","天巫","福德","福生","五合"],"xs":["五虚","归忌","白虎","三娘煞"],"jq":""},"2026-12-31":{"l":"冬月廿三","lm":11,"ld":23,"leap":false,"dg":"己卯","zx":"平","ts":"玉堂","tt":"黄道","xiu":"井","xl":"吉","chong":"鸡","yi":false,"ji":true,"js":["天恩","民日","不将","五合","玉堂"],"xs":["天罡","死神","月刑","天吏","致死","天贼","月忌"],"jq":""},"2027-01-01":{"l":"冬月廿四","lm":11,"ld":24,"leap":false,"dg":"庚辰","zx":"定","ts":"天牢","tt":"黑道","xiu":"鬼","xl":"凶","chong":"狗","yi":true,"ji":false,"js":["天恩","三合","临日","时阴","天仓","不将","圣心"],"xs":["死气","天牢","十恶大败"],"jq":""},"2027-01-02":{"l":"冬月廿五","lm":11,"ld":25,"leap":false,"dg":"辛巳","zx":"执","ts":"玄武","tt":"黑道","xiu":"柳","xl":"凶","chong":"猪","yi":true,"ji":false,"js":["天恩","五富","不将","益后"],"xs":["劫煞","小耗","重日","元武","十恶大败","红沙"],"jq":""},"2027-01-03":{"l":"冬月廿六","lm":11,"ld":26,"leap":false,"dg":"壬午","zx":"破","ts":"司命","tt":"黄道","xiu":"星","xl":"凶","chong":"鼠","yi":false,"ji":true,"js":["月德","天恩","阳德","六仪","续世","解神","司命","鸣吠"],"xs":["月破","大耗","灾煞","天火","厌对","招摇","五虚","血忌"],"jq":""},"2027-01-04":{"l":"冬月廿七","lm":11,"ld":27,"leap":false,"dg":"癸未","zx":"危","ts":"勾陈","tt":"黑道","xiu":"张","xl":"吉","chong":"牛","yi":false,"ji":false,"js":["天恩","要安"],"xs":["月煞","月虚","月害","四击","复日","触水龙","勾陈","三娘煞"],"jq":""},"2027-01-05":{"l":"冬月廿八","lm":11,"ld":28,"leap":false,"dg":"甲申","zx":"危","ts":"司命","tt":"黄道","xiu":"翼","xl":"凶","chong":"虎","yi":true,"ji":false,"js":["月空","母仓","四相","阳德","五富","生气","除神","司命","鸣吠"],"xs":["游祸","五离"],"jq":"小寒"},"2027-01-06":{"l":"冬月廿九","lm":11,"ld":29,"leap":false,"dg":"乙酉","zx":"成","ts":"勾陈","tt":"黑道","xiu":"轸","xl":"吉","chong":"兔","yi":false,"ji":false,"js":["天德合","月德合","母仓","四相","三合","临日","天喜","天医","除神","鸣吠"],"xs":["大煞","五离","勾陈"],"jq":""},"2027-01-07":{"l":"冬月三十","lm":11,"ld":30,"leap":false,"dg":"丙戌","zx":"收","ts":"青龙","tt":"黄道","xiu":"角","xl":"吉","chong":"龙","yi":false,"ji":false,"js":["圣心","青龙"],"xs":["天罡","月刑","五虚"],"jq":""},"2027-01-08":{"l":"腊月初一","lm":12,"ld":1,"leap":false,"dg":"丁亥","zx":"开","ts":"明堂","tt":"黄道","xiu":"亢","xl":"凶","chong":"蛇","yi":false,"ji":true,"js":["阴德","王日","驿马","天后","时阴","生气","益后","明堂"],"xs":["月厌","地火","重日","十恶大败"],"jq":""},"2027-01-09":{"l":"腊月初二","lm":12,"ld":2,"leap":false,"dg":"戊子","zx":"闭","ts":"天刑","tt":"黑道","xiu":"氐","xl":"凶","chong":"马","yi":false,"ji":true,"js":["官日","六合","续世"],"xs":["天吏","致死","血支","土符","归忌","血忌","天刑","逐阵"],"jq":""},"2027-01-10":{"l":"腊月初三","lm":12,"ld":3,"leap":false,"dg":"己丑","zx":"建","ts":"朱雀","tt":"黑道","xiu":"房","xl":"吉","chong":"羊","yi":false,"ji":true,"js":["守日","不将","要安"],"xs":["月建","小时","土府","往亡","复日","朱雀","三娘煞","十恶大败","红沙"],"jq":""},"2027-01-11":{"l":"腊月初四","lm":12,"ld":4,"leap":false,"dg":"庚寅","zx":"除","ts":"金匮","tt":"黄道","xiu":"心","xl":"凶","chong":"猴","yi":false,"ji":false,"js":["天德","月德","时德","相日","吉期","不将","玉宇","五合","金匮"],"xs":["劫煞","天贼","五虚"],"jq":""},"2027-01-12":{"l":"腊月初五","lm":12,"ld":5,"leap":false,"dg":"辛卯","zx":"满","ts":"天德","tt":"黄道","xiu":"尾","xl":"吉","chong":"鸡","yi":true,"ji":false,"js":["月恩","民日","天巫","福德","天仓","不将","金堂","五合","宝光","鸣吠对"],"xs":["灾煞","天火","月忌"],"jq":""},"2027-01-13":{"l":"腊月初六","lm":12,"ld":6,"leap":false,"dg":"壬辰","zx":"平","ts":"白虎","tt":"黑道","xiu":"箕","xl":"吉","chong":"狗","yi":false,"ji":false,"js":["天马"],"xs":["河魁","死神","月煞","月虚","白虎"],"jq":""},"2027-01-14":{"l":"腊月初七","lm":12,"ld":7,"leap":false,"dg":"癸巳","zx":"定","ts":"玉堂","tt":"黄道","xiu":"斗","xl":"吉","chong":"猪","yi":true,"ji":false,"js":["三合","阴德","六仪","玉堂"],"xs":["厌对","招摇","死气","九坎","九焦","重日","三娘煞"],"jq":""},"2027-01-15":{"l":"腊月初八","lm":12,"ld":8,"leap":false,"dg":"甲午","zx":"执","ts":"天牢","tt":"黑道","xiu":"牛","xl":"凶","chong":"鼠","yi":true,"ji":false,"js":["月空","四相","敬安","解神","鸣吠"],"xs":["月害","大时","大败","咸池","小耗","五虚","天牢"],"jq":""},"2027-01-16":{"l":"腊月初九","lm":12,"ld":9,"leap":false,"dg":"乙未","zx":"破","ts":"玄武","tt":"黑道","xiu":"女","xl":"凶","chong":"牛","yi":false,"ji":false,"js":["天德合","月德合","四相","普护"],"xs":["月破","大耗","四击","九空","元武"],"jq":""},"2027-01-17":{"l":"腊月初十","lm":12,"ld":10,"leap":false,"dg":"丙申","zx":"危","ts":"司命","tt":"黄道","xiu":"虚","xl":"凶","chong":"虎","yi":true,"ji":false,"js":["母仓","阳德","五富","福生","除神","司命","鸣吠"],"xs":["游祸","五离","十恶大败"],"jq":""},"2027-01-18":{"l":"腊月十一","lm":12,"ld":11,"leap":false,"dg":"丁酉","zx":"成","ts":"勾陈","tt":"黑道","xiu":"危","xl":"凶","chong":"兔","yi":false,"ji":true,"js":["母仓","三合","临日","天喜","天医","除神","鸣吠"],"xs":["大煞","五离","勾陈"],"jq":""},"2027-01-19":{"l":"腊月十二","lm":12,"ld":12,"leap":false,"dg":"戊戌","zx":"收","ts":"青龙","tt":"黄道","xiu":"室","xl":"吉","chong":"龙","yi":false,"ji":true,"js":["圣心","青龙"],"xs":["天罡","月刑","五虚","十恶大败"],"jq":""},"2027-01-20":{"l":"腊月十三","lm":12,"ld":13,"leap":false,"dg":"己亥","zx":"开","ts":"明堂","tt":"黄道","xiu":"壁","xl":"吉","chong":"蛇","yi":false,"ji":true,"js":["阴德","王日","驿马","天后","时阳","生气","益后","明堂"],"xs":["月厌","地火","复日","重日","三娘煞"],"jq":"大寒"},"2027-01-21":{"l":"腊月十四","lm":12,"ld":14,"leap":false,"dg":"庚子","zx":"闭","ts":"天刑","tt":"黑道","xiu":"奎","xl":"凶","chong":"马","yi":false,"ji":true,"js":["天德","月德","官日","六合","不将","续世","鸣吠对"],"xs":["天吏","致死","血支","土符","归忌","血忌","天刑","月忌"],"jq":""},"2027-01-22":{"l":"腊月十五","lm":12,"ld":15,"leap":false,"dg":"辛丑","zx":"建","ts":"朱雀","tt":"黑道","xiu":"娄","xl":"吉","chong":"羊","yi":false,"ji":true,"js":["月恩","守日","不将","要安"],"xs":["月建","小时","土府","往亡","朱雀","红沙"],"jq":""},"2027-01-23":{"l":"腊月十六","lm":12,"ld":16,"leap":false,"dg":"壬寅","zx":"除","ts":"金匮","tt":"黄道","xiu":"胃","xl":"吉","chong":"猴","yi":true,"ji":false,"js":["时德","相日","吉期","玉宇","五合","金匮","鸣吠对"],"xs":["劫煞","天贼","五虚"],"jq":""},"2027-01-24":{"l":"腊月十七","lm":12,"ld":17,"leap":false,"dg":"癸卯","zx":"满","ts":"天德","tt":"黄道","xiu":"昴","xl":"凶","chong":"鸡","yi":true,"ji":false,"js":["民日","天巫","福德","天仓","金堂","五合","宝光","鸣吠对"],"xs":["灾煞","天火"],"jq":""},"2027-01-25":{"l":"腊月十八","lm":12,"ld":18,"leap":false,"dg":"甲辰","zx":"平","ts":"白虎","tt":"黑道","xiu":"毕","xl":"吉","chong":"狗","yi":false,"ji":true,"js":["月空","四相","天马"],"xs":["河魁","致死","月煞","月虚","白虎","三娘煞","十恶大败"],"jq":""},"2027-01-26":{"l":"腊月十九","lm":12,"ld":19,"leap":false,"dg":"乙巳","zx":"定","ts":"玉堂","tt":"黄道","xiu":"觜","xl":"凶","chong":"猪","yi":true,"ji":false,"js":["天德合","月德合","四相","三合","时阴","六仪","玉堂"],"xs":["厌对","招摇","死气","九坎","九焦","重日","杨公忌","十恶大败"],"jq":""},"2027-01-27":{"l":"腊月二十","lm":12,"ld":20,"leap":false,"dg":"丙午","zx":"执","ts":"天牢","tt":"黑道","xiu":"参","xl":"吉","chong":"鼠","yi":false,"ji":true,"js":["敬安","解神","鸣吠"],"xs":["月害","大时","大败","咸池","小耗","四废","五虚","天牢"],"jq":""},"2027-01-28":{"l":"腊月廿一","lm":12,"ld":21,"leap":false,"dg":"丁未","zx":"破","ts":"玄武","tt":"黑道","xiu":"井","xl":"吉","chong":"牛","yi":false,"ji":true,"js":["普护"],"xs":["月破","大耗","四击","九空","八专","元武","阳破阴冲"],"jq":""},"2027-01-29":{"l":"腊月廿二","lm":12,"ld":22,"leap":false,"dg":"戊申","zx":"危","ts":"司命","tt":"黄道","xiu":"鬼","xl":"凶","chong":"虎","yi":false,"ji":true,"js":["母仓","阳德","五富","福生","除神","司命"],"xs":["游祸","五离","三娘煞"],"jq":""},"2027-01-30":{"l":"腊月廿三","lm":12,"ld":23,"leap":false,"dg":"己酉","zx":"成","ts":"勾陈","tt":"黑道","xiu":"柳","xl":"凶","chong":"兔","yi":false,"ji":true,"js":["天恩","母仓","三合","临日","天喜","天医","除神","鸣吠"],"xs":["大煞","复日","五离","勾陈","月忌"],"jq":""},"2027-01-31":{"l":"腊月廿四","lm":12,"ld":24,"leap":false,"dg":"庚戌","zx":"收","ts":"青龙","tt":"黄道","xiu":"星","xl":"凶","chong":"龙","yi":true,"ji":false,"js":["天德","月德","天恩","圣心","青龙"],"xs":["天罡","月刑","五虚"],"jq":""},"2027-02-01":{"l":"腊月廿五","lm":12,"ld":25,"leap":false,"dg":"辛亥","zx":"开","ts":"明堂","tt":"黄道","xiu":"张","xl":"吉","chong":"蛇","yi":false,"ji":true,"js":["天恩","月恩","阴德","王日","驿马","天后","时阳","生气","益后","明堂"],"xs":["月厌","地火","重日"],"jq":""},"2027-02-02":{"l":"腊月廿六","lm":12,"ld":26,"leap":false,"dg":"壬子","zx":"闭","ts":"天刑","tt":"黑道","xiu":"翼","xl":"凶","chong":"马","yi":false,"ji":true,"js":["天恩","官日","六合","续世"],"xs":["天吏","致死","血支","四忌","六蛇","土符","归忌","血忌","天刑","逐阵"],"jq":""},"2027-02-03":{"l":"腊月廿七","lm":12,"ld":27,"leap":false,"dg":"癸丑","zx":"建","ts":"朱雀","tt":"黑道","xiu":"轸","xl":"吉","chong":"羊","yi":false,"ji":false,"js":["天恩","守日","要安"],"xs":["月建","小时","土府","往亡","八专","触水龙","朱雀","阳错","三娘煞","红沙","四绝"],"jq":""},"2027-02-04":{"l":"腊月廿八","lm":12,"ld":28,"leap":false,"dg":"甲寅","zx":"建","ts":"天刑","tt":"黑道","xiu":"角","xl":"吉","chong":"猴","yi":false,"ji":false,"js":["王日","天仓","要安","五合","鸣吠对"],"xs":["月建","小时","土府","往亡","复日","八专","天刑","阳错"],"jq":"立春"},"2027-02-05":{"l":"腊月廿九","lm":12,"ld":29,"leap":false,"dg":"乙卯","zx":"除","ts":"朱雀","tt":"黑道","xiu":"亢","xl":"凶","chong":"鸡","yi":true,"ji":false,"js":["官日","吉期","玉宇","五合","鸣吠对"],"xs":["大时","大败","咸池","朱雀"],"jq":""},"2027-02-06":{"l":"正月初一","lm":1,"ld":1,"leap":false,"dg":"丙辰","zx":"满","ts":"金匮","tt":"黄道","xiu":"氐","xl":"凶","chong":"狗","yi":true,"ji":false,"js":["月德","月恩","四相","守日","天巫","福德","六仪","金堂","金匮"],"xs":["厌对","招摇","九空","九坎","九焦"],"jq":""},"2027-02-07":{"l":"正月初二","lm":1,"ld":2,"leap":false,"dg":"丁巳","zx":"平","ts":"天德","tt":"黄道","xiu":"房","xl":"吉","chong":"猪","yi":false,"ji":false,"js":["天德","四相","相日","宝光"],"xs":["天罡","死神","月刑","月害","游祸","五虚","八风","重日"],"jq":""},"2027-02-08":{"l":"正月初三","lm":1,"ld":3,"leap":false,"dg":"戊午","zx":"定","ts":"白虎","tt":"黑道","xiu":"心","xl":"凶","chong":"鼠","yi":false,"ji":false,"js":["时德","民日","三合","临日","天马","时阴"],"xs":["死气","白虎","三娘煞"],"jq":""},"2027-02-09":{"l":"正月初四","lm":1,"ld":4,"leap":false,"dg":"己未","zx":"执","ts":"玉堂","tt":"黄道","xiu":"尾","xl":"吉","chong":"牛","yi":true,"ji":false,"js":["敬安","玉堂"],"xs":["小耗","八专"],"jq":""},"2027-02-10":{"l":"正月初五","lm":1,"ld":5,"leap":false,"dg":"庚申","zx":"破","ts":"天牢","tt":"黑道","xiu":"箕","xl":"吉","chong":"虎","yi":false,"ji":true,"js":["驿马","天后","普护","解神","除神","鸣吠"],"xs":["月破","大耗","四废","五离","八专","天牢","月忌"],"jq":""},"2027-02-11":{"l":"正月初六","lm":1,"ld":6,"leap":false,"dg":"辛酉","zx":"危","ts":"玄武","tt":"黑道","xiu":"斗","xl":"吉","chong":"兔","yi":false,"ji":true,"js":["月德合","阴德","福生","除神","鸣吠"],"xs":["天吏","致死","四废","五虚","五离","元武","三阴","红沙"],"jq":""},"2027-02-12":{"l":"正月初七","lm":1,"ld":7,"leap":false,"dg":"壬戌","zx":"成","ts":"司命","tt":"黄道","xiu":"牛","xl":"凶","chong":"龙","yi":false,"ji":true,"js":["天德合","月空","阳德","三合","天喜","天医","司命"],"xs":["月厌","地火","四击","大煞","三娘煞"],"jq":""},"2027-02-13":{"l":"正月初八","lm":1,"ld":8,"leap":false,"dg":"癸亥","zx":"收","ts":"勾陈","tt":"黑道","xiu":"女","xl":"凶","chong":"蛇","yi":false,"ji":true,"js":["母仓","六合","五富","圣心"],"xs":["河魁","劫煞","重日","勾陈","十恶大败"],"jq":""},"2027-02-14":{"l":"正月初九","lm":1,"ld":9,"leap":false,"dg":"甲子","zx":"开","ts":"青龙","tt":"黄道","xiu":"虚","xl":"凶","chong":"马","yi":true,"ji":false,"js":["天恩","母仓","时阳","生气","益后","青龙"],"xs":["灾煞","天火","四忌","八龙","复日"],"jq":""},"2027-02-15":{"l":"正月初十","lm":1,"ld":10,"leap":false,"dg":"乙丑","zx":"闭","ts":"明堂","tt":"黄道","xiu":"危","xl":"凶","chong":"羊","yi":false,"ji":true,"js":["天恩","续世","明堂"],"xs":["月煞","月虚","血支","天贼","五虚","土符","归忌","血忌"],"jq":""},"2027-02-16":{"l":"正月十一","lm":1,"ld":11,"leap":false,"dg":"丙寅","zx":"建","ts":"天刑","tt":"黑道","xiu":"室","xl":"吉","chong":"猴","yi":false,"ji":true,"js":["月德","天恩","月恩","四相","王日","天仓","不将","要安","五合","鸣吠对"],"xs":["月建","小时","土府","往亡","天刑"],"jq":""},"2027-02-17":{"l":"正月十二","lm":1,"ld":12,"leap":false,"dg":"丁卯","zx":"除","ts":"朱雀","tt":"黑道","xiu":"壁","xl":"吉","chong":"鸡","yi":true,"ji":false,"js":["天德","天恩","四相","官日","吉期","不将","玉宇","五合","鸣吠对"],"xs":["大时","大败","咸池","朱雀"],"jq":""},"2027-02-18":{"l":"正月十三","lm":1,"ld":13,"leap":false,"dg":"戊辰","zx":"满","ts":"金匮","tt":"黄道","xiu":"奎","xl":"凶","chong":"狗","yi":false,"ji":true,"js":["天恩","守日","天巫","福德","六仪","金堂","金匮"],"xs":["厌对","招摇","九空","九坎","九焦","杨公忌","三娘煞"],"jq":""},"2027-02-19":{"l":"正月十四","lm":1,"ld":14,"leap":false,"dg":"己巳","zx":"平","ts":"天德","tt":"黄道","xiu":"娄","xl":"吉","chong":"猪","yi":false,"ji":false,"js":["相日","宝光"],"xs":["天罡","死神","月刑","月害","游祸","五虚","重日","月忌"],"jq":"雨水"},"2027-02-20":{"l":"正月十五","lm":1,"ld":15,"leap":false,"dg":"庚午","zx":"定","ts":"白虎","tt":"黑道","xiu":"胃","xl":"吉","chong":"鼠","yi":true,"ji":false,"js":["时德","民日","三合","临日","天马","时阴","鸣吠"],"xs":["死气","地囊","白虎"],"jq":""},"2027-02-21":{"l":"正月十六","lm":1,"ld":16,"leap":false,"dg":"辛未","zx":"执","ts":"玉堂","tt":"黄道","xiu":"昴","xl":"凶","chong":"牛","yi":true,"ji":false,"js":["月德合","敬安","玉堂","普护","解神"],"xs":["小耗"],"jq":""},"2027-02-22":{"l":"正月十七","lm":1,"ld":17,"leap":false,"dg":"壬申","zx":"破","ts":"天牢","tt":"黑道","xiu":"毕","xl":"吉","chong":"虎","yi":false,"ji":true,"js":["天德合","月空","驿马","天后","普护","解神","除神","鸣吠"],"xs":["月破","大耗","五离","天牢","十恶大败"],"jq":""},"2027-02-23":{"l":"正月十八","lm":1,"ld":18,"leap":false,"dg":"癸酉","zx":"危","ts":"玄武","tt":"黑道","xiu":"觜","xl":"凶","chong":"兔","yi":false,"ji":false,"js":["阴德","福生","除神","鸣吠"],"xs":["天吏","致死","五虚","五离","元武","三娘煞","红沙"],"jq":""},"2027-02-24":{"l":"正月十九","lm":1,"ld":19,"leap":false,"dg":"甲戌","zx":"成","ts":"司命","tt":"黄道","xiu":"参","xl":"吉","chong":"龙","yi":false,"ji":true,"js":["阳德","三合","天喜","天医","司命"],"xs":["月厌","地火","四击","大煞","复日","大会"],"jq":""},"2027-02-25":{"l":"正月二十","lm":1,"ld":20,"leap":false,"dg":"乙亥","zx":"收","ts":"勾陈","tt":"黑道","xiu":"井","xl":"吉","chong":"蛇","yi":false,"ji":true,"js":["母仓","天愿","六合","五富","圣心"],"xs":["河魁","劫煞","四穷","八龙","重日","勾陈"],"jq":""},"2027-02-26":{"l":"正月廿一","lm":1,"ld":21,"leap":false,"dg":"丙子","zx":"开","ts":"青龙","tt":"黄道","xiu":"鬼","xl":"凶","chong":"马","yi":true,"ji":false,"js":["月德","母仓","月恩","四相","时阳","生气","不将","益后","青龙","鸣吠对"],"xs":["灾煞","天火","触水龙"],"jq":""},"2027-02-27":{"l":"正月廿二","lm":1,"ld":22,"leap":false,"dg":"丁丑","zx":"闭","ts":"明堂","tt":"黄道","xiu":"柳","xl":"凶","chong":"羊","yi":false,"ji":true,"js":["天德","四相","不将","续世","明堂"],"xs":["月煞","月虚","血支","天贼","五虚","八风","土符","归忌","血忌","三娘煞"],"jq":""},"2027-02-28":{"l":"正月廿三","lm":1,"ld":23,"leap":false,"dg":"戊寅","zx":"建","ts":"天刑","tt":"黑道","xiu":"星","xl":"凶","chong":"猴","yi":false,"ji":false,"js":["天赦","王日","天仓","要安","五合"],"xs":["月建","小时","土府","往亡","天刑","月忌"],"jq":""},"2027-03-01":{"l":"正月廿四","lm":1,"ld":24,"leap":false,"dg":"己卯","zx":"除","ts":"朱雀","tt":"黑道","xiu":"张","xl":"吉","chong":"鸡","yi":false,"ji":true,"js":["天恩","官日","吉期","不将","玉宇","五合"],"xs":["大时","大败","咸池","朱雀"],"jq":""},"2027-03-02":{"l":"正月廿五","lm":1,"ld":25,"leap":false,"dg":"庚辰","zx":"满","ts":"金匮","tt":"黄道","xiu":"翼","xl":"凶","chong":"狗","yi":false,"ji":false,"js":["天恩","守日","天巫","福德","六仪","金堂","金匮"],"xs":["厌对","招摇","九空","九坎","九焦","十恶大败"],"jq":""},"2027-03-03":{"l":"正月廿六","lm":1,"ld":26,"leap":false,"dg":"辛巳","zx":"平","ts":"天德","tt":"黄道","xiu":"轸","xl":"吉","chong":"猪","yi":false,"ji":true,"js":["月德合","天恩","相日","宝光"],"xs":["天罡","死神","月刑","月害","游祸","五虚","重日","十恶大败"],"jq":""},"2027-03-04":{"l":"正月廿七","lm":1,"ld":27,"leap":false,"dg":"壬午","zx":"定","ts":"白虎","tt":"黑道","xiu":"角","xl":"吉","chong":"鼠","yi":true,"ji":false,"js":["天德合","月空","天恩","时德","民日","三合","临日","天马","时阴","鸣吠"],"xs":["死气","白虎","三娘煞"],"jq":""},"2027-03-05":{"l":"正月廿八","lm":1,"ld":28,"leap":false,"dg":"癸未","zx":"执","ts":"玉堂","tt":"黄道","xiu":"亢","xl":"凶","chong":"牛","yi":true,"ji":false,"js":["天恩","敬安","玉堂"],"xs":["小耗","触水龙"],"jq":""},"2027-03-06":{"l":"正月廿九","lm":1,"ld":29,"leap":false,"dg":"甲申","zx":"执","ts":"白虎","tt":"黑道","xiu":"氐","xl":"凶","chong":"虎","yi":true,"ji":false,"js":["月德","天马","要安","解神","除神","鸣吠"],"xs":["劫煞","小耗","五离","白虎"],"jq":"惊蛰"},"2027-03-07":{"l":"正月三十","lm":1,"ld":30,"leap":false,"dg":"乙酉","zx":"破","ts":"玉堂","tt":"黄道","xiu":"房","xl":"吉","chong":"兔","yi":false,"ji":false,"js":["玉宇","除神","玉堂","鸣吠"],"xs":["月破","大耗","灾煞","天火","月厌","地火","五虚","复日","五离","白虎","红沙"],"jq":""},"2027-03-08":{"l":"二月初一","lm":2,"ld":1,"leap":false,"dg":"丙戌","zx":"危","ts":"天牢","tt":"黑道","xiu":"心","xl":"凶","chong":"龙","yi":true,"ji":false,"js":["四相","六合","不将","金堂"],"xs":["月煞","月虚","四击","天牢"],"jq":""},"2027-03-09":{"l":"二月初二","lm":2,"ld":2,"leap":false,"dg":"丁亥","zx":"成","ts":"玄武","tt":"黑道","xiu":"尾","xl":"吉","chong":"蛇","yi":false,"ji":true,"js":["母仓","月恩","四相","三合","临日","天喜","天医","不将"],"xs":["重日","元武","十恶大败"],"jq":""},"2027-03-10":{"l":"二月初三","lm":2,"ld":3,"leap":false,"dg":"戊子","zx":"收","ts":"司命","tt":"黄道","xiu":"箕","xl":"吉","chong":"马","yi":true,"ji":false,"js":["母仓","阳德","司命"],"xs":["天罡","月刑","大时","大败","咸池","天贼","三娘煞"],"jq":""},"2027-03-11":{"l":"二月初四","lm":2,"ld":4,"leap":false,"dg":"己丑","zx":"开","ts":"勾陈","tt":"黑道","xiu":"斗","xl":"吉","chong":"羊","yi":true,"ji":false,"js":["月德合","时阳","生气","天仓","不将","敬安"],"xs":["五虚","九空","九坎","九焦","勾陈","十恶大败"],"jq":""},"2027-03-12":{"l":"二月初五","lm":2,"ld":5,"leap":false,"dg":"庚寅","zx":"闭","ts":"青龙","tt":"黄道","xiu":"牛","xl":"凶","chong":"猴","yi":false,"ji":true,"js":["月空","王日","五富","不将","普护","五合","青龙","鸣吠对"],"xs":["游祸","血支","归忌","月忌"],"jq":""},"2027-03-13":{"l":"二月初六","lm":2,"ld":6,"leap":false,"dg":"辛卯","zx":"建","ts":"明堂","tt":"黄道","xiu":"女","xl":"凶","chong":"鸡","yi":true,"ji":false,"js":["官日","六仪","福生","五合","明堂","鸣吠"],"xs":["月建","小时","土府","厌对","招摇"],"jq":""},"2027-03-14":{"l":"二月初七","lm":2,"ld":7,"leap":false,"dg":"壬辰","zx":"除","ts":"天刑","tt":"黑道","xiu":"虚","xl":"凶","chong":"狗","yi":false,"ji":true,"js":["守日","吉期"],"xs":["月害","天刑","三娘煞"],"jq":""},"2027-03-15":{"l":"二月初八","lm":2,"ld":8,"leap":false,"dg":"癸巳","zx":"满","ts":"朱雀","tt":"黑道","xiu":"危","xl":"凶","chong":"猪","yi":false,"ji":true,"js":["相日","驿马","天后","天巫","福德","圣心"],"xs":["五虚","土符","大煞","往亡","重日","朱雀","红沙"],"jq":""},"2027-03-16":{"l":"二月初九","lm":2,"ld":9,"leap":false,"dg":"甲午","zx":"平","ts":"金匮","tt":"黄道","xiu":"室","xl":"吉","chong":"鼠","yi":true,"ji":false,"js":["月德","时德","民日","益后","金匮","鸣吠"],"xs":["河魁","死神","天吏","致死"],"jq":""},"2027-03-17":{"l":"二月初十","lm":2,"ld":10,"leap":false,"dg":"乙未","zx":"定","ts":"天德","tt":"黄道","xiu":"壁","xl":"吉","chong":"牛","yi":true,"ji":false,"js":["阴德","三合","时阴","续世","宝光"],"xs":["死气","五墓","地囊","血忌","复日"],"jq":""},"2027-03-18":{"l":"二月十一","lm":2,"ld":11,"leap":false,"dg":"丙申","zx":"执","ts":"白虎","tt":"黑道","xiu":"奎","xl":"凶","chong":"虎","yi":true,"ji":false,"js":["四相","天马","要安","解神","除神","鸣吠"],"xs":["劫煞","小耗","五离","白虎","杨公忌","十恶大败"],"jq":""},"2027-03-19":{"l":"二月十二","lm":2,"ld":12,"leap":false,"dg":"丁酉","zx":"破","ts":"玉堂","tt":"黄道","xiu":"娄","xl":"吉","chong":"兔","yi":false,"ji":true,"js":["月恩","四相","玉宇","除神","玉堂","鸣吠"],"xs":["月破","大耗","灾煞","天火","月厌","地火","五虚","五离"],"jq":""},"2027-03-20":{"l":"二月十三","lm":2,"ld":13,"leap":false,"dg":"戊戌","zx":"危","ts":"天牢","tt":"黑道","xiu":"胃","xl":"吉","chong":"龙","yi":false,"ji":true,"js":["六合","金堂"],"xs":["月煞","月虚","四击","天牢","三娘煞","十恶大败","四离"],"jq":""},"2027-03-21":{"l":"二月十四","lm":2,"ld":14,"leap":false,"dg":"己亥","zx":"成","ts":"玄武","tt":"黑道","xiu":"昴","xl":"凶","chong":"蛇","yi":false,"ji":true,"js":["月德合","母仓","三合","临日","天喜","天医","不将"],"xs":["重日","元武","月忌"],"jq":"春分"},"2027-03-22":{"l":"二月十五","lm":2,"ld":15,"leap":false,"dg":"庚子","zx":"收","ts":"司命","tt":"黄道","xiu":"毕","xl":"吉","chong":"马","yi":false,"ji":false,"js":["月空","母仓","阳德","不将","司命","鸣吠对"],"xs":["天罡","月刑","大时","大败","咸池","天贼"],"jq":""},"2027-03-23":{"l":"二月十六","lm":2,"ld":16,"leap":false,"dg":"辛丑","zx":"开","ts":"勾陈","tt":"黑道","xiu":"觜","xl":"凶","chong":"羊","yi":true,"ji":false,"js":["时阳","生气","天仓","敬安"],"xs":["五虚","九空","九坎","九焦","勾陈"],"jq":""},"2027-03-24":{"l":"二月十七","lm":2,"ld":17,"leap":false,"dg":"壬寅","zx":"闭","ts":"青龙","tt":"黄道","xiu":"参","xl":"吉","chong":"猴","yi":false,"ji":true,"js":["王日","五富","普护","五合","青龙","鸣吠对"],"xs":["游祸","血支","归忌"],"jq":""},"2027-03-25":{"l":"二月十八","lm":2,"ld":18,"leap":false,"dg":"癸卯","zx":"建","ts":"明堂","tt":"黄道","xiu":"井","xl":"吉","chong":"鸡","yi":false,"ji":true,"js":["官日","六仪","福生","五合","明堂","鸣吠对"],"xs":["月建","小时","土府","厌对","招摇","三娘煞"],"jq":""},"2027-03-26":{"l":"二月十九","lm":2,"ld":19,"leap":false,"dg":"甲辰","zx":"除","ts":"天刑","tt":"黑道","xiu":"鬼","xl":"凶","chong":"狗","yi":false,"ji":true,"js":["月德","守日","吉期"],"xs":["月害","天刑","十恶大败"],"jq":""},"2027-03-27":{"l":"二月二十","lm":2,"ld":20,"leap":false,"dg":"乙巳","zx":"满","ts":"朱雀","tt":"黑道","xiu":"柳","xl":"凶","chong":"猪","yi":false,"ji":false,"js":["相日","驿马","天后","天巫","福德","圣心"],"xs":["五虚","土符","大煞","往亡","复日","重日","朱雀","十恶大败","红沙"],"jq":""},"2027-03-28":{"l":"二月廿一","lm":2,"ld":21,"leap":false,"dg":"丙午","zx":"平","ts":"金匮","tt":"黄道","xiu":"星","xl":"凶","chong":"鼠","yi":true,"ji":false,"js":["四相","时德","民日","益后","金匮","鸣吠"],"xs":["河魁","死神","天吏","致死"],"jq":""},"2027-03-29":{"l":"二月廿二","lm":2,"ld":22,"leap":false,"dg":"丁未","zx":"定","ts":"天德","tt":"黄道","xiu":"张","xl":"吉","chong":"牛","yi":true,"ji":false,"js":["月恩","四相","阴德","三合","时阴","续世","宝光"],"xs":["死气","血忌","八专","三娘煞"],"jq":""},"2027-03-30":{"l":"二月廿三","lm":2,"ld":23,"leap":false,"dg":"戊申","zx":"执","ts":"白虎","tt":"黑道","xiu":"翼","xl":"凶","chong":"虎","yi":false,"ji":true,"js":["天马","要安","解神","除神"],"xs":["劫煞","小耗","五离","白虎","月忌"],"jq":""},"2027-03-31":{"l":"二月廿四","lm":2,"ld":24,"leap":false,"dg":"己酉","zx":"破","ts":"玉堂","tt":"黄道","xiu":"轸","xl":"吉","chong":"兔","yi":false,"ji":true,"js":["月德合","天恩","玉宇","除神","玉堂","鸣吠"],"xs":["月破","大耗","灾煞","天火","月厌","地火","五虚","五离","阴道冲阳"],"jq":""},"2027-04-01":{"l":"二月廿五","lm":2,"ld":25,"leap":false,"dg":"庚戌","zx":"危","ts":"天牢","tt":"黑道","xiu":"角","xl":"吉","chong":"龙","yi":true,"ji":false,"js":["月空","天恩","六合","不将","金堂"],"xs":["月煞","月虚","四击","天牢"],"jq":""},"2027-04-02":{"l":"二月廿六","lm":2,"ld":26,"leap":false,"dg":"辛亥","zx":"成","ts":"玄武","tt":"黑道","xiu":"亢","xl":"凶","chong":"蛇","yi":false,"ji":true,"js":["天恩","母仓","三合","临日","天喜","天医"],"xs":["重日","元武"],"jq":""},"2027-04-03":{"l":"二月廿七","lm":2,"ld":27,"leap":false,"dg":"壬子","zx":"收","ts":"司命","tt":"黄道","xiu":"氐","xl":"凶","chong":"马","yi":true,"ji":false,"js":["天恩","母仓","阳德","司命","鸣吠对"],"xs":["天罡","月刑","大时","大败","咸池","天贼","四耗","三娘煞"],"jq":""},"2027-04-04":{"l":"二月廿八","lm":2,"ld":28,"leap":false,"dg":"癸丑","zx":"开","ts":"勾陈","tt":"黑道","xiu":"房","xl":"吉","chong":"羊","yi":false,"ji":false,"js":["天恩","时阳","生气","天仓","敬安"],"xs":["五虚","九空","九坎","九焦","地囊","八专","触水龙","勾陈"],"jq":""},"2027-04-05":{"l":"二月廿九","lm":2,"ld":29,"leap":false,"dg":"甲寅","zx":"开","ts":"司命","tt":"黄道","xiu":"心","xl":"凶","chong":"猴","yi":true,"ji":false,"js":["阳德","王日","驿马","天后","时阳","生气","六仪","续世","五合","司命","鸣吠对"],"xs":["厌对","招摇","血忌","八专"],"jq":"清明"},"2027-04-06":{"l":"二月三十","lm":2,"ld":30,"leap":false,"dg":"乙卯","zx":"闭","ts":"勾陈","tt":"黑道","xiu":"尾","xl":"吉","chong":"鸡","yi":false,"ji":true,"js":["官日","要安","五合","鸣吠对"],"xs":["月害","天吏","致死","血支","勾陈"],"jq":""},"2027-04-07":{"l":"三月初一","lm":3,"ld":1,"leap":false,"dg":"丙辰","zx":"建","ts":"青龙","tt":"黄道","xiu":"箕","xl":"吉","chong":"狗","yi":false,"ji":false,"js":["月空","四相","守日","玉宇","青龙"],"xs":["月建","小时","土府","月刑"],"jq":""},"2027-04-08":{"l":"三月初二","lm":3,"ld":2,"leap":false,"dg":"丁巳","zx":"除","ts":"明堂","tt":"黄道","xiu":"斗","xl":"吉","chong":"猪","yi":false,"ji":false,"js":["天德合","月德合","四相","阴德","相日","吉期","五富","金堂","明堂"],"xs":["劫煞","五虚","八风","重日"],"jq":""},"2027-04-09":{"l":"三月初三","lm":3,"ld":3,"leap":false,"dg":"戊午","zx":"满","ts":"天刑","tt":"黑道","xiu":"牛","xl":"凶","chong":"鼠","yi":true,"ji":false,"js":["时德","民日","天巫","福德"],"xs":["灾煞","天火","大煞","复日","天刑","三娘煞"],"jq":""},"2027-04-10":{"l":"三月初四","lm":3,"ld":4,"leap":false,"dg":"己未","zx":"平","ts":"朱雀","tt":"黑道","xiu":"女","xl":"凶","chong":"牛","yi":false,"ji":true,"js":["无"],"xs":["天罡","死神","月煞","月虚","八专","朱雀"],"jq":""},"2027-04-11":{"l":"三月初五","lm":3,"ld":5,"leap":false,"dg":"庚申","zx":"定","ts":"金匮","tt":"黄道","xiu":"虚","xl":"凶","chong":"虎","yi":false,"ji":true,"js":["月恩","三合","临日","时阴","敬安","除神","金匮","鸣吠"],"xs":["月厌","地火","死气","四废","往亡","五离","八专","孤辰","阴错","月忌"],"jq":""},"2027-04-12":{"l":"三月初六","lm":3,"ld":6,"leap":false,"dg":"辛酉","zx":"执","ts":"天德","tt":"黄道","xiu":"危","xl":"凶","chong":"兔","yi":false,"ji":false,"js":["六合","普护","除神","宝光","鸣吠"],"xs":["大时","大败","咸池","小耗","四废","五虚","土符","五离"],"jq":""},"2027-04-13":{"l":"三月初七","lm":3,"ld":7,"leap":false,"dg":"壬戌","zx":"破","ts":"白虎","tt":"黑道","xiu":"室","xl":"吉","chong":"龙","yi":false,"ji":true,"js":["天德","月德","天马","福生","解神"],"xs":["月破","大耗","四击","九空","九坎","九焦","白虎","三娘煞"],"jq":""},"2027-04-14":{"l":"三月初八","lm":3,"ld":8,"leap":false,"dg":"癸亥","zx":"危","ts":"玉堂","tt":"黄道","xiu":"壁","xl":"吉","chong":"蛇","yi":false,"ji":false,"js":["母仓","玉堂"],"xs":["游祸","天贼","重日","十恶大败"],"jq":""},"2027-04-15":{"l":"三月初九","lm":3,"ld":9,"leap":false,"dg":"甲子","zx":"成","ts":"天牢","tt":"黑道","xiu":"奎","xl":"凶","chong":"马","yi":false,"ji":true,"js":["天恩","母仓","三合","天喜","天医","天仓","不将","圣心"],"xs":["四忌","八龙","地囊","归忌","天牢","杨公忌"],"jq":""},"2027-04-16":{"l":"三月初十","lm":3,"ld":10,"leap":false,"dg":"乙丑","zx":"收","ts":"玄武","tt":"黑道","xiu":"娄","xl":"吉","chong":"羊","yi":false,"ji":true,"js":["天恩","不将","益后"],"xs":["河魁","五虚","元武","红沙"],"jq":""},"2027-04-17":{"l":"三月十一","lm":3,"ld":11,"leap":false,"dg":"丙寅","zx":"开","ts":"司命","tt":"黄道","xiu":"胃","xl":"吉","chong":"猴","yi":true,"ji":false,"js":["月空","天恩","四相","阳德","王日","驿马","天后","时阳","生气","六仪","续世","五合","司命","鸣吠对"],"xs":["厌对","招摇","血忌"],"jq":""},"2027-04-18":{"l":"三月十二","lm":3,"ld":12,"leap":false,"dg":"丁卯","zx":"闭","ts":"勾陈","tt":"黑道","xiu":"昴","xl":"凶","chong":"鸡","yi":false,"ji":false,"js":["天德合","月德合","天恩","四相","官日","要安","五合","鸣吠对"],"xs":["月害","天吏","致死","血支","勾陈"],"jq":""},"2027-04-19":{"l":"三月十三","lm":3,"ld":13,"leap":false,"dg":"戊辰","zx":"建","ts":"青龙","tt":"黄道","xiu":"毕","xl":"吉","chong":"狗","yi":false,"ji":false,"js":["天恩","守日","玉宇","青龙"],"xs":["月建","小时","土府","月刑","五墓","复日","小会","单阴","三娘煞"],"jq":""},"2027-04-20":{"l":"三月十四","lm":3,"ld":14,"leap":false,"dg":"己巳","zx":"除","ts":"明堂","tt":"黄道","xiu":"觜","xl":"凶","chong":"猪","yi":true,"ji":false,"js":["阴德","相日","吉期","五富","金堂","明堂"],"xs":["劫煞","五虚","重日","月忌"],"jq":"谷雨"},"2027-04-21":{"l":"三月十五","lm":3,"ld":15,"leap":false,"dg":"庚午","zx":"满","ts":"天刑","tt":"黑道","xiu":"参","xl":"吉","chong":"鼠","yi":true,"ji":false,"js":["月恩","时德","民日","天巫","福德","鸣吠"],"xs":["灾煞","天火","大煞","天刑"],"jq":""},"2027-04-22":{"l":"三月十六","lm":3,"ld":16,"leap":false,"dg":"辛未","zx":"平","ts":"朱雀","tt":"黑道","xiu":"井","xl":"吉","chong":"牛","yi":false,"ji":false,"js":["无"],"xs":["天罡","死神","月煞","朱雀"],"jq":""},"2027-04-23":{"l":"三月十七","lm":3,"ld":17,"leap":false,"dg":"壬申","zx":"定","ts":"金匮","tt":"黄道","xiu":"鬼","xl":"凶","chong":"虎","yi":false,"ji":true,"js":["天德","月德","三合","临日","时阴","敬安","除神","金匮","鸣吠"],"xs":["月厌","地火","死气","往亡","五离","孤辰","十恶大败"],"jq":""},"2027-04-24":{"l":"三月十八","lm":3,"ld":18,"leap":false,"dg":"癸酉","zx":"执","ts":"天德","tt":"黄道","xiu":"柳","xl":"凶","chong":"兔","yi":false,"ji":true,"js":["六合","普护","除神","宝光","鸣吠"],"xs":["大时","大败","咸池","小耗","五虚","土符","五离","三娘煞"],"jq":""},"2027-04-25":{"l":"三月十九","lm":3,"ld":19,"leap":false,"dg":"甲戌","zx":"破","ts":"白虎","tt":"黑道","xiu":"星","xl":"凶","chong":"龙","yi":false,"ji":false,"js":["天马","不将","福生","解神"],"xs":["月破","大耗","四击","九空","九坎","九焦","白虎"],"jq":""},"2027-04-26":{"l":"三月二十","lm":3,"ld":20,"leap":false,"dg":"乙亥","zx":"危","ts":"玉堂","tt":"黄道","xiu":"张","xl":"吉","chong":"蛇","yi":false,"ji":true,"js":["母仓","不将","玉宇"],"xs":["游祸","天贼","四穷","八龙","重日"],"jq":""},"2027-04-27":{"l":"三月廿一","lm":3,"ld":21,"leap":false,"dg":"丙子","zx":"成","ts":"天牢","tt":"黑道","xiu":"翼","xl":"凶","chong":"马","yi":false,"ji":true,"js":["月空","母仓","四相","三合","天喜","天医","天仓","不将","圣心","鸣吠对"],"xs":["归忌","触水龙","天牢"],"jq":""},"2027-04-28":{"l":"三月廿二","lm":3,"ld":22,"leap":false,"dg":"丁丑","zx":"收","ts":"玄武","tt":"黑道","xiu":"轸","xl":"吉","chong":"羊","yi":false,"ji":true,"js":["天德合","月德合","四相","不将","益后"],"xs":["河魁","五虚","八风","元武","三娘煞","红沙"],"jq":""},"2027-04-29":{"l":"三月廿三","lm":3,"ld":23,"leap":false,"dg":"戊寅","zx":"开","ts":"司命","tt":"黄道","xiu":"角","xl":"吉","chong":"猴","yi":true,"ji":false,"js":["天赦","阳德","王日","驿马","天后","时阳","生气","六仪","续世","五合","司命"],"xs":["厌对","招摇","血忌","复日","月忌"],"jq":""},"2027-04-30":{"l":"三月廿四","lm":3,"ld":24,"leap":false,"dg":"己卯","zx":"闭","ts":"勾陈","tt":"黑道","xiu":"亢","xl":"凶","chong":"鸡","yi":false,"ji":true,"js":["天恩","官日","要安","五合"],"xs":["月害","天吏","致死","血支","勾陈"],"jq":""},"2027-05-01":{"l":"三月廿五","lm":3,"ld":25,"leap":false,"dg":"庚辰","zx":"建","ts":"青龙","tt":"黄道","xiu":"氐","xl":"凶","chong":"狗","yi":false,"ji":false,"js":["天恩","月恩","守日","玉宇","青龙"],"xs":["月建","小时","土府","月刑","阴位","十恶大败"],"jq":""},"2027-05-02":{"l":"三月廿六","lm":3,"ld":26,"leap":false,"dg":"辛巳","zx":"除","ts":"明堂","tt":"黄道","xiu":"房","xl":"吉","chong":"猪","yi":false,"ji":true,"js":["天恩","阴德","相日","吉期","五富","金堂","明堂"],"xs":["劫煞","五虚","重日","十恶大败"],"jq":""},"2027-05-03":{"l":"三月廿七","lm":3,"ld":27,"leap":false,"dg":"壬午","zx":"满","ts":"天刑","tt":"黑道","xiu":"心","xl":"凶","chong":"鼠","yi":true,"ji":false,"js":["天德","月德","天恩","时德","民日","天巫","福德","鸣吠"],"xs":["灾煞","天火","地囊","大煞","天刑","三娘煞"],"jq":""},"2027-05-04":{"l":"三月廿八","lm":3,"ld":28,"leap":false,"dg":"癸未","zx":"平","ts":"朱雀","tt":"黑道","xiu":"尾","xl":"吉","chong":"牛","yi":false,"ji":true,"js":["天恩"],"xs":["天罡","死神","月煞","月虚","触水龙","朱雀"],"jq":""},"2027-05-05":{"l":"三月廿九","lm":3,"ld":29,"leap":false,"dg":"甲申","zx":"定","ts":"金匮","tt":"黄道","xiu":"箕","xl":"吉","chong":"虎","yi":false,"ji":false,"js":["三合","临日","时阴","敬安","除神","金匮","鸣吠"],"xs":["月厌","地火","死气","往亡","五离","行狠","四绝"],"jq":""},"2027-05-06":{"l":"四月初一","lm":4,"ld":1,"leap":false,"dg":"乙酉","zx":"定","ts":"朱雀","tt":"黑道","xiu":"斗","xl":"吉","chong":"兔","yi":true,"ji":false,"js":["月德合","民日","三合","时阴","不将","要安","除神","鸣吠"],"xs":["死气","五离","朱雀","红沙"],"jq":"立夏"},"2027-05-07":{"l":"四月初二","lm":4,"ld":2,"leap":false,"dg":"丙戌","zx":"执","ts":"金匮","tt":"黄道","xiu":"牛","xl":"凶","chong":"龙","yi":true,"ji":false,"js":["天德合","不将","玉宇","解神","金匮"],"xs":["小耗","天贼","五墓","复日"],"jq":""},"2027-05-08":{"l":"四月初三","lm":4,"ld":3,"leap":false,"dg":"丁亥","zx":"破","ts":"天德","tt":"黄道","xiu":"女","xl":"凶","chong":"蛇","yi":false,"ji":false,"js":["驿马","天后","天仓","不将","金堂","宝光"],"xs":["月破","大耗","四穷","七鸟","往亡","重日","三娘煞","十恶大败"],"jq":""},"2027-05-09":{"l":"四月初四","lm":4,"ld":4,"leap":false,"dg":"戊子","zx":"危","ts":"白虎","tt":"黑道","xiu":"虚","xl":"凶","chong":"马","yi":true,"ji":false,"js":["四相","天马","不将"],"xs":["天吏","致死","五虚","白虎"],"jq":""},"2027-05-10":{"l":"四月初五","lm":4,"ld":5,"leap":false,"dg":"己丑","zx":"成","ts":"玉堂","tt":"黄道","xiu":"危","xl":"凶","chong":"羊","yi":false,"ji":true,"js":["月恩","四相","三合","临日","天喜","天医","六仪","玉堂"],"xs":["厌对","招摇","四击","归忌","月忌","十恶大败"],"jq":""},"2027-05-11":{"l":"四月初六","lm":4,"ld":6,"leap":false,"dg":"庚寅","zx":"收","ts":"天牢","tt":"黑道","xiu":"室","xl":"吉","chong":"猴","yi":false,"ji":false,"js":["月德","母仓","敬安","五合","鸣吠对"],"xs":["天罡","劫煞","月害","土符","天牢"],"jq":""},"2027-05-12":{"l":"四月初七","lm":4,"ld":7,"leap":false,"dg":"辛卯","zx":"开","ts":"玄武","tt":"黑道","xiu":"壁","xl":"吉","chong":"鸡","yi":false,"ji":false,"js":["天德","母仓","阴德","时阴","生气","普护","五合","鸣吠对"],"xs":["灾煞","天火","元武","杨公忌","三娘煞"],"jq":""},"2027-05-13":{"l":"四月初八","lm":4,"ld":8,"leap":false,"dg":"壬辰","zx":"闭","ts":"司命","tt":"黄道","xiu":"奎","xl":"凶","chong":"狗","yi":true,"ji":false,"js":["时德","阳德","福生","司命"],"xs":["月煞","月虚","血支","五虚"],"jq":""},"2027-05-14":{"l":"四月初九","lm":4,"ld":9,"leap":false,"dg":"癸巳","zx":"建","ts":"勾陈","tt":"黑道","xiu":"娄","xl":"吉","chong":"猪","yi":false,"ji":true,"js":["王日"],"xs":["月建","小时","土府","重日","勾陈"],"jq":""},"2027-05-15":{"l":"四月初十","lm":4,"ld":10,"leap":false,"dg":"甲午","zx":"除","ts":"青龙","tt":"黄道","xiu":"胃","xl":"吉","chong":"鼠","yi":true,"ji":false,"js":["月空","天赦","官日","吉期","圣心","青龙","鸣吠"],"xs":["大时","大败","咸池"],"jq":""},"2027-05-16":{"l":"四月十一","lm":4,"ld":11,"leap":false,"dg":"乙未","zx":"满","ts":"明堂","tt":"黄道","xiu":"昴","xl":"凶","chong":"牛","yi":false,"ji":true,"js":["月德合","守日","天巫","福德","益后","明堂"],"xs":["月厌","地火","九空","九坎","九焦","大煞","行狠"],"jq":""},"2027-05-17":{"l":"四月十二","lm":4,"ld":12,"leap":false,"dg":"丙申","zx":"平","ts":"天刑","tt":"黑道","xiu":"毕","xl":"吉","chong":"虎","yi":true,"ji":false,"js":["天德合","天愿","相日","六合","五富","不将","续世","除神","鸣吠"],"xs":["河魁","死神","月刑","游祸","五虚","血忌","复日","五离","天刑","十恶大败"],"jq":""},"2027-05-18":{"l":"四月十三","lm":4,"ld":13,"leap":false,"dg":"丁酉","zx":"定","ts":"朱雀","tt":"黑道","xiu":"觜","xl":"凶","chong":"兔","yi":false,"ji":true,"js":["民日","三合","时阴","不将","要安","除神","鸣吠"],"xs":["死气","五离","朱雀","三娘煞","红沙"],"jq":""},"2027-05-19":{"l":"四月十四","lm":4,"ld":14,"leap":false,"dg":"戊戌","zx":"执","ts":"金匮","tt":"黄道","xiu":"参","xl":"吉","chong":"龙","yi":true,"ji":false,"js":["四相","不将","玉宇","解神","金匮"],"xs":["小耗","天贼","月忌","十恶大败"],"jq":""},"2027-05-20":{"l":"四月十五","lm":4,"ld":15,"leap":false,"dg":"己亥","zx":"破","ts":"天德","tt":"黄道","xiu":"井","xl":"吉","chong":"蛇","yi":false,"ji":false,"js":["月恩","四相","驿马","天后","天仓","金堂","宝光"],"xs":["月破","大耗","往亡","重日"],"jq":""},"2027-05-21":{"l":"四月十六","lm":4,"ld":16,"leap":false,"dg":"庚子","zx":"危","ts":"白虎","tt":"黑道","xiu":"鬼","xl":"凶","chong":"马","yi":true,"ji":false,"js":["月德","天马","鸣吠对"],"xs":["天吏","致死","五虚","白虎"],"jq":"小满"},"2027-05-22":{"l":"四月十七","lm":4,"ld":17,"leap":false,"dg":"辛丑","zx":"成","ts":"玉堂","tt":"黄道","xiu":"柳","xl":"凶","chong":"羊","yi":false,"ji":true,"js":["天德","三合","临日","天喜","天医","六仪","玉堂"],"xs":["厌对","招摇","四击","归忌"],"jq":""},"2027-05-23":{"l":"四月十八","lm":4,"ld":18,"leap":false,"dg":"壬寅","zx":"收","ts":"天牢","tt":"黑道","xiu":"星","xl":"凶","chong":"猴","yi":false,"ji":true,"js":["母仓","敬安","五合","鸣吠对"],"xs":["天罡","劫煞","月害","土符","天牢","三娘煞"],"jq":""},"2027-05-24":{"l":"四月十九","lm":4,"ld":19,"leap":false,"dg":"癸卯","zx":"开","ts":"玄武","tt":"黑道","xiu":"张","xl":"吉","chong":"鸡","yi":true,"ji":false,"js":["母仓","阴德","时阳","生气","普护","五合","鸣吠对"],"xs":["灾煞","天火","元武"],"jq":""},"2027-05-25":{"l":"四月二十","lm":4,"ld":20,"leap":false,"dg":"甲辰","zx":"闭","ts":"司命","tt":"黄道","xiu":"翼","xl":"凶","chong":"狗","yi":true,"ji":false,"js":["月空","时德","阳德","福生","司命"],"xs":["月煞","月虚","血支","五虚","八风","十恶大败"],"jq":""},"2027-05-26":{"l":"四月廿一","lm":4,"ld":21,"leap":false,"dg":"乙巳","zx":"建","ts":"勾陈","tt":"黑道","xiu":"轸","xl":"吉","chong":"猪","yi":false,"ji":true,"js":["月德合","王日"],"xs":["月建","小时","土府","重日","勾陈","十恶大败"],"jq":""},"2027-05-27":{"l":"四月廿二","lm":4,"ld":22,"leap":false,"dg":"丙午","zx":"除","ts":"青龙","tt":"黄道","xiu":"角","xl":"吉","chong":"鼠","yi":true,"ji":false,"js":["天德合","官日","吉期","圣心","青龙","鸣吠"],"xs":["大时","大败","咸池","复日","岁薄","三娘煞"],"jq":""},"2027-05-28":{"l":"四月廿三","lm":4,"ld":23,"leap":false,"dg":"丁未","zx":"满","ts":"明堂","tt":"黄道","xiu":"亢","xl":"凶","chong":"牛","yi":true,"ji":false,"js":["守日","天巫","福德","益后","明堂"],"xs":["月厌","地火","九空","九坎","九焦","大煞","八专","了戾","阴错","月忌"],"jq":""},"2027-05-29":{"l":"四月廿四","lm":4,"ld":24,"leap":false,"dg":"戊申","zx":"平","ts":"天刑","tt":"黑道","xiu":"氐","xl":"凶","chong":"虎","yi":false,"ji":true,"js":["四相","相日","六合","五富","不将","续世","除神"],"xs":["河魁","死神","月刑","游祸","五虚","血忌","五离","天刑"],"jq":""},"2027-05-30":{"l":"四月廿五","lm":4,"ld":25,"leap":false,"dg":"己酉","zx":"定","ts":"朱雀","tt":"黑道","xiu":"房","xl":"吉","chong":"兔","yi":false,"ji":true,"js":["天恩","月恩","四相","民日","三合","时阴","要安","除神","鸣吠"],"xs":["死气","地囊","五离","朱雀","红沙"],"jq":""},"2027-05-31":{"l":"四月廿六","lm":4,"ld":26,"leap":false,"dg":"庚戌","zx":"执","ts":"金匮","tt":"黄道","xiu":"心","xl":"凶","chong":"龙","yi":true,"ji":false,"js":["月德","天恩","玉宇","解神","金匮"],"xs":["小耗","天贼"],"jq":""},"2027-06-01":{"l":"四月廿七","lm":4,"ld":27,"leap":false,"dg":"辛亥","zx":"破","ts":"天德","tt":"黄道","xiu":"尾","xl":"吉","chong":"蛇","yi":false,"ji":false,"js":["天德","天恩","驿马","天后","天仓","金堂","宝光"],"xs":["月破","大耗","往亡","重日","三娘煞"],"jq":""},"2027-06-02":{"l":"四月廿八","lm":4,"ld":28,"leap":false,"dg":"壬子","zx":"危","ts":"白虎","tt":"黑道","xiu":"箕","xl":"吉","chong":"马","yi":false,"ji":true,"js":["天恩","天马","鸣吠对"],"xs":["天吏","致死","四废","五虚","白虎"],"jq":""},"2027-06-03":{"l":"四月廿九","lm":4,"ld":29,"leap":false,"dg":"癸丑","zx":"成","ts":"玉堂","tt":"黄道","xiu":"斗","xl":"吉","chong":"羊","yi":false,"ji":true,"js":["天恩","三合","临日","天喜","天医","六仪","玉堂"],"xs":["厌对","招摇","四击","归忌","八专","触水龙"],"jq":""},"2027-06-04":{"l":"四月三十","lm":4,"ld":30,"leap":false,"dg":"甲寅","zx":"收","ts":"天牢","tt":"黑道","xiu":"牛","xl":"凶","chong":"猴","yi":false,"ji":false,"js":["月空","母仓","敬安","五合","鸣吠对"],"xs":["天罡","劫煞","月害","土符","八专","天牢"],"jq":""},"2027-06-05":{"l":"五月初一","lm":5,"ld":1,"leap":false,"dg":"乙卯","zx":"开","ts":"玄武","tt":"黑道","xiu":"女","xl":"凶","chong":"鸡","yi":true,"ji":false,"js":["月德合","母仓","阴德","时阴","生气","普护","五合","鸣吠对"],"xs":["灾煞","天火","四耗","元武"],"jq":""},"2027-06-06":{"l":"五月初二","lm":5,"ld":2,"leap":false,"dg":"丙辰","zx":"开","ts":"天牢","tt":"黑道","xiu":"虚","xl":"凶","chong":"狗","yi":false,"ji":false,"js":["月德","时德","时阳","生气","要安"],"xs":["五虚","九空","天牢"],"jq":"芒种"},"2027-06-07":{"l":"五月初三","lm":5,"ld":3,"leap":false,"dg":"丁巳","zx":"闭","ts":"玄武","tt":"黑道","xiu":"危","xl":"凶","chong":"猪","yi":false,"ji":true,"js":["王日","玉宇"],"xs":["游祸","血支","复日","重日","元武","三娘煞","红沙"],"jq":""},"2027-06-08":{"l":"五月初四","lm":5,"ld":4,"leap":false,"dg":"戊午","zx":"建","ts":"司命","tt":"黄道","xiu":"室","xl":"吉","chong":"鼠","yi":false,"ji":false,"js":["月德","四相","阳德","官日","金堂","司命"],"xs":["月建","小时","土府","月刑","月厌","地火","土符","小会"],"jq":""},"2027-06-09":{"l":"五月初五","lm":5,"ld":5,"leap":false,"dg":"己未","zx":"除","ts":"勾陈","tt":"黑道","xiu":"壁","xl":"吉","chong":"牛","yi":true,"ji":false,"js":["四相","守日","吉期","六合"],"xs":["八专","勾陈","杨公忌","月忌"],"jq":""},"2027-06-10":{"l":"五月初六","lm":5,"ld":6,"leap":false,"dg":"庚申","zx":"满","ts":"青龙","tt":"黄道","xiu":"奎","xl":"凶","chong":"虎","yi":true,"ji":false,"js":["相日","驿马","天后","天巫","福德","除神","青龙","鸣吠"],"xs":["五虚","五离","八专"],"jq":""},"2027-06-11":{"l":"五月初七","lm":5,"ld":7,"leap":false,"dg":"辛酉","zx":"平","ts":"明堂","tt":"黄道","xiu":"娄","xl":"吉","chong":"兔","yi":true,"ji":false,"js":["月德合","民日","敬安","除神","明堂","鸣吠"],"xs":["天罡","死神","天吏","致死","天贼","五离","三娘煞"],"jq":""},"2027-06-12":{"l":"五月初八","lm":5,"ld":8,"leap":false,"dg":"壬戌","zx":"定","ts":"天刑","tt":"黑道","xiu":"胃","xl":"吉","chong":"龙","yi":true,"ji":false,"js":["月空","三合","临日","时阴","天仓","普护"],"xs":["死气","地囊","天刑"],"jq":""},"2027-06-13":{"l":"五月初九","lm":5,"ld":9,"leap":false,"dg":"癸亥","zx":"执","ts":"朱雀","tt":"黑道","xiu":"昴","xl":"凶","chong":"蛇","yi":false,"ji":true,"js":["五富","不将","福生"],"xs":["劫煞","小耗","四废","重日","朱雀","十恶大败"],"jq":""},"2027-06-14":{"l":"五月初十","lm":5,"ld":10,"leap":false,"dg":"甲子","zx":"破","ts":"金匮","tt":"黄道","xiu":"毕","xl":"吉","chong":"马","yi":false,"ji":false,"js":["天恩","六仪","解神","金匮"],"xs":["月破","大耗","灾煞","天火","厌对","招摇","五虚"],"jq":""},"2027-06-15":{"l":"五月十一","lm":5,"ld":11,"leap":false,"dg":"乙丑","zx":"危","ts":"天德","tt":"黄道","xiu":"觜","xl":"凶","chong":"羊","yi":false,"ji":false,"js":["天恩","阴德","圣心","宝光"],"xs":["月煞","月虚","月害","四击"],"jq":""},"2027-06-16":{"l":"五月十二","lm":5,"ld":12,"leap":false,"dg":"丙寅","zx":"成","ts":"白虎","tt":"黑道","xiu":"参","xl":"吉","chong":"猴","yi":false,"ji":true,"js":["月德","天恩","母仓","三合","天马","天喜","天医","益后","五合","鸣吠对"],"xs":["大煞","归忌","白虎"],"jq":""},"2027-06-17":{"l":"五月十三","lm":5,"ld":13,"leap":false,"dg":"丁卯","zx":"收","ts":"玉堂","tt":"黄道","xiu":"井","xl":"吉","chong":"鸡","yi":false,"ji":false,"js":["天恩","母仓","续世","五合","玉堂","鸣吠对"],"xs":["河魁","大时","大败","咸池","九坎","九焦","血忌","往亡","复日","三娘煞"],"jq":""},"2027-06-18":{"l":"五月十四","lm":5,"ld":14,"leap":false,"dg":"戊辰","zx":"开","ts":"天牢","tt":"黑道","xiu":"鬼","xl":"凶","chong":"狗","yi":true,"ji":false,"js":["天恩","月恩","四相","时德","时阳","生气","要安"],"xs":["五虚","九空","天牢","月忌"],"jq":""},"2027-06-19":{"l":"五月十五","lm":5,"ld":15,"leap":false,"dg":"己巳","zx":"闭","ts":"玄武","tt":"黑道","xiu":"柳","xl":"凶","chong":"猪","yi":true,"ji":false,"js":["四相","王日","玉宇"],"xs":["游祸","血支","重日","元武","红沙"],"jq":""},"2027-06-20":{"l":"五月十六","lm":5,"ld":16,"leap":false,"dg":"庚午","zx":"建","ts":"司命","tt":"黄道","xiu":"星","xl":"凶","chong":"鼠","yi":false,"ji":false,"js":["阳德","官日","金堂","司命","鸣吠"],"xs":["月建","小时","土府","月刑","月厌","地火","土符","四离"],"jq":""},"2027-06-21":{"l":"五月十七","lm":5,"ld":17,"leap":false,"dg":"辛未","zx":"除","ts":"勾陈","tt":"黑道","xiu":"张","xl":"吉","chong":"牛","yi":true,"ji":false,"js":["月德合","守日","吉期","六合"],"xs":["勾陈"],"jq":"夏至"},"2027-06-22":{"l":"五月十八","lm":5,"ld":18,"leap":false,"dg":"壬申","zx":"满","ts":"青龙","tt":"黄道","xiu":"翼","xl":"凶","chong":"虎","yi":false,"ji":true,"js":["月空","相日","驿马","天后","天巫","福德","除神","青龙","鸣吠"],"xs":["五虚","五离","三娘煞","十恶大败"],"jq":""},"2027-06-23":{"l":"五月十九","lm":5,"ld":19,"leap":false,"dg":"癸酉","zx":"平","ts":"明堂","tt":"黄道","xiu":"轸","xl":"吉","chong":"兔","yi":false,"ji":false,"js":["民日","不将","敬安","除神","明堂","鸣吠"],"xs":["天罡","死神","天吏","致死","天贼","五离"],"jq":""},"2027-06-24":{"l":"五月二十","lm":5,"ld":20,"leap":false,"dg":"甲戌","zx":"定","ts":"天刑","tt":"黑道","xiu":"角","xl":"吉","chong":"龙","yi":true,"ji":false,"js":["三合","临日","时阴","天仓","不将","普护"],"xs":["死气","天刑"],"jq":""},"2027-06-25":{"l":"五月廿一","lm":5,"ld":21,"leap":false,"dg":"乙亥","zx":"执","ts":"朱雀","tt":"黑道","xiu":"亢","xl":"凶","chong":"蛇","yi":false,"ji":true,"js":["五富","不将","福生"],"xs":["劫煞","小耗","重日","朱雀"],"jq":""},"2027-06-26":{"l":"五月廿二","lm":5,"ld":22,"leap":false,"dg":"丙子","zx":"破","ts":"金匮","tt":"黄道","xiu":"氐","xl":"凶","chong":"马","yi":false,"ji":true,"js":["月德","六仪","解神","金匮","鸣吠对"],"xs":["月破","大耗","灾煞","天火","厌对","招摇","四忌","七鸟","五虚","触水龙","三娘煞"],"jq":""},"2027-06-27":{"l":"五月廿三","lm":5,"ld":23,"leap":false,"dg":"丁丑","zx":"危","ts":"天德","tt":"黄道","xiu":"房","xl":"吉","chong":"羊","yi":true,"ji":false,"js":["阴德","圣心","宝光"],"xs":["月煞","月虚","月害","复日","月忌"],"jq":""},"2027-06-28":{"l":"五月廿四","lm":5,"ld":24,"leap":false,"dg":"戊寅","zx":"成","ts":"白虎","tt":"黑道","xiu":"心","xl":"凶","chong":"猴","yi":false,"ji":true,"js":["母仓","月恩","四相","三合","天马","天喜","天医","益后","五合"],"xs":["大煞","归忌","白虎"],"jq":""},"2027-06-29":{"l":"五月廿五","lm":5,"ld":25,"leap":false,"dg":"己卯","zx":"收","ts":"玉堂","tt":"黄道","xiu":"尾","xl":"吉","chong":"鸡","yi":false,"ji":false,"js":["天恩","母仓","四相","续世","五合","玉堂"],"xs":["河魁","大时","大败","咸池","九坎","九焦","血忌","往亡"],"jq":""},"2027-06-30":{"l":"五月廿六","lm":5,"ld":26,"leap":false,"dg":"庚辰","zx":"开","ts":"天牢","tt":"黑道","xiu":"箕","xl":"吉","chong":"狗","yi":false,"ji":false,"js":["天恩","时德","时阳","生气","要安"],"xs":["五虚","九空","天牢","十恶大败"],"jq":""}}}</script>
+
+<script>
+const STORAGE_KEY = "certDateConfig_v2";
+const ZODIAC = ["鼠","牛","虎","兔","龙","蛇","马","羊","猴","鸡","狗","猪"];
+const STEMS = "甲乙丙丁戊己庚辛壬癸";
+const BRANCHES = "子丑寅卯辰巳午未申酉戌亥";
+
+const GOOD_ZX = new Set(["除","定","执","危","成","开"]);
+const BAD_ZX = new Set(["建","平","满","收","闭"]);
+const HIGH_GODS = new Set(["天德","天德合","月德","月德合","天赦","天喜","三合","六合","不将","天愿","益后","续世","母仓","天医","玉堂","金匮","宝光","福生"]);
+const BIG_EVILS = new Set(["月破","杨公忌","四离","四绝","十恶大败"]);
+const MID_EVILS = new Set(["三娘煞","红沙","月忌","往亡","四击","四忌","重日","天贼","死神"]);
+
+const DEFAULT_CONFIG = {
+  persons: [
+    {key:"groom", label:"男方", name:"男方", senior:false, birth:"1995-05-15"},
+    {key:"bride", label:"女方", name:"女方", senior:false, birth:"1997-08-20"},
+    {key:"groom_father", label:"男方父亲", name:"男方父亲", senior:true, birth:"1965-03-10"},
+    {key:"groom_mother", label:"男方母亲", name:"男方母亲", senior:true, birth:"1968-07-22"},
+    {key:"bride_father", label:"女方父亲", name:"女方父亲", senior:true, birth:"1963-11-05"},
+    {key:"bride_mother", label:"女方母亲", name:"女方母亲", senior:true, birth:"1966-02-18"},
+  ],
+  start:"2026-10-28", end:"2027-06-30"
+};
+
+let ALMANAC = null;
+let COVER = null;
+
+function pad(n){ return String(n).padStart(2,"0"); }
+function isoOf(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function weekdayCN(d){ return ["日","一","二","三","四","五","六"][d.getDay()]; }
+
+function lunarYearOf(dateStr){
+  try {
+    const d = new Date(dateStr + "T12:00:00");
+    const parts = new Intl.DateTimeFormat("zh-CN-u-ca-chinese", {year:"numeric"}).formatToParts(d);
+    const ry = parts.find(p => p.type === "relatedYear");
+    if (ry) return parseInt(ry.value, 10);
+    return d.getFullYear();
+  } catch { return new Date(dateStr + "T12:00:00").getFullYear(); }
+}
+
+function zodiacOf(dateStr){
+  const y = lunarYearOf(dateStr);
+  return ZODIAC[((y - 4) % 12 + 12) % 12];
+}
+
+function jdnFromYMD(y, m, d){
+  const a = Math.floor((14 - m) / 12);
+  const yy = y + 4800 - a;
+  const mm = m + 12 * a - 3;
+  return d + Math.floor((153 * mm + 2) / 5) + 365 * yy
+       + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045;
+}
+
+function dayGanzhi(dateStr){
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const idx = (((jdnFromYMD(y, m, d) + 49) % 60) + 60) % 60;
+  return STEMS[idx % 10] + BRANCHES[idx % 12];
+}
+
+function birthParts(birth){
+  const m = parseInt(birth.slice(5,7),10);
+  const d = parseInt(birth.slice(8,10),10);
+  return {month:m, day:d};
+}
+
+function isWorkday(d){
+  const wd = d.getDay();
+  return wd !== 0;
+}
+
+function scoreDate(d, e, persons){
+  let score = 0;
+  const tags = [];
+  const warns = [];
+  const ok = t => tags.push({t, cls:"ok"});
+  const bad = t => warns.push({t, cls:"bad"});
+  const warn = t => warns.push({t, cls:"warn"});
+
+  if (e.yi) { score += 30; ok("宜嫁娶"); }
+  if (e.ji) { score -= 60; bad("忌嫁娶"); }
+
+  if (e.zx === "破") { score -= 30; bad("破日"); }
+  else if (BAD_ZX.has(e.zx)) { score -= 12; warn(`建除·${e.zx}`); }
+  else if (GOOD_ZX.has(e.zx)) { score += 12; ok(`建除·${e.zx}`); }
+
+  if (e.tt === "黄道") { score += 12; ok(`${e.tt}·${e.ts}`); }
+  else { score -= 12; warn(`${e.tt}·${e.ts}`); }
+
+  if (e.xl === "吉") { score += 5; ok(`宿·${e.xiu}(${e.xl})`); }
+  else if (e.xl === "凶") { score -= 5; warn(`宿·${e.xiu}(${e.xl})`); }
+
+  let godBonus = 0;
+  const hitGods = [];
+  for (const g of e.js) {
+    if (HIGH_GODS.has(g)) { godBonus += 5; hitGods.push(g); }
+    else godBonus += 1;
+  }
+  godBonus = Math.min(godBonus, 20);
+  if (godBonus > 0) {
+    score += godBonus;
+    ok(`吉神+${godBonus}${hitGods.length ? "：" + hitGods.join("、") : ""}`);
+  }
+
+  let evilPenalty = 0;
+  const hitEvils = [];
+  for (const x of e.xs) {
+    if (BIG_EVILS.has(x)) { evilPenalty -= 15; hitEvils.push(x); }
+    else if (x === "月破") { evilPenalty -= 20; hitEvils.push(x); }
+    else if (MID_EVILS.has(x)) { evilPenalty -= 8; hitEvils.push(x); }
+    else evilPenalty -= 2;
+  }
+  evilPenalty = Math.max(evilPenalty, -45);
+  if (evilPenalty < 0) {
+    score += evilPenalty;
+    bad(`凶煞${evilPenalty}${hitEvils.length ? "：" + hitEvils.join("、") : ""}`);
+  }
+
+  if ([3,7,9].includes(e.lm)) { score -= 40; bad(`农历${e.lm}月（三七九月）`); }
+
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+  const candBranch = BRANCHES.indexOf(e.dg[1]);
+  for (const p of persons) {
+    if (p.zodiac === e.chong) {
+      const pen = p.senior ? 10 : 25;
+      score -= pen;
+      bad(`冲${p.label}生肖（属${p.zodiac}）−${pen}`);
+    }
+    if (p.birthMonth === month && p.birthDay === day) {
+      score -= 30;
+      bad(`撞${p.label}生日正日`);
+    }
+    if (!p.senior && p.birthBranch >= 0 && candBranch >= 0 &&
+        (candBranch - p.birthBranch + 12) % 12 === 6) {
+      score -= 15;
+      bad(`冲${p.label}日柱（${BRANCHES[p.birthBranch]}冲${BRANCHES[candBranch]}）−15`);
+    }
+  }
+
+  if (isWorkday(d)) { score += 10; ok("民政局工作日"); }
+  else { score -= 10; warn("周日/节假日（民政局休息）"); }
+
+  if ([8,18,28].includes(day)) { score += 5; ok("公历尾数8"); }
+  if (d.getDay() === 5 || d.getDay() === 6) { score += 5; ok("周五/六"); }
+
+  return {date:d, entry:e, score, tags, warns};
+}
+
+function findCandidates(start, end, persons){
+  const out = [];
+  const cur = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 12);
+  const last = new Date(end.getFullYear(), end.getMonth(), end.getDate(), 12);
+  while (cur <= last) {
+    const key = isoOf(cur);
+    const e = ALMANAC[key];
+    if (e) out.push(scoreDate(new Date(cur), e, persons));
+    cur.setDate(cur.getDate() + 1);
+  }
+  out.sort((a,b) => b.score - a.score || (b.entry.yi?1:0) - (a.entry.yi?1:0));
+  return out;
+}
+
+/* ---------- 配置 ---------- */
+function loadConfig(){
+  let cfg = DEFAULT_CONFIG;
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) cfg = {...DEFAULT_CONFIG, ...JSON.parse(saved)};
+  } catch {}
+  if (!localStorage.getItem(STORAGE_KEY) && COVER && COVER.start) {
+    cfg = {...cfg, start: COVER.start, end: COVER.end};
+  }
+  return cfg;
+}
+function saveConfig(cfg){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); }
+
+function gatherConfig(){
+  const persons = [];
+  for (const p of DEFAULT_CONFIG.persons) {
+    const el = document.getElementById(p.key);
+    const birth = (el && el.value) || p.birth;
+    const {month, day} = birthParts(birth);
+    const gz = dayGanzhi(birth);
+    persons.push({
+      key:p.key, label:p.label, name:p.name, senior:p.senior, birth,
+      zodiac:zodiacOf(birth), birthMonth:month, birthDay:day,
+      birthGZ:gz, birthBranch:BRANCHES.indexOf(gz[1])
+    });
+  }
+  return {
+    persons,
+    start:document.getElementById("startDate").value,
+    end:document.getElementById("endDate").value
+  };
+}
+
+function applyConfig(cfg){
+  for (const p of cfg.persons) {
+    const el = document.getElementById(p.key);
+    if (el) { el.value = p.birth; updateZodiac(p.key); }
+  }
+  document.getElementById("startDate").value = cfg.start;
+  document.getElementById("endDate").value = cfg.end;
+}
+
+function updateZodiac(key){
+  const el = document.getElementById(key);
+  const badge = document.getElementById(key + "_zodiac");
+  const gzEl = document.getElementById(key + "_gz");
+  if (!el || !badge || !el.value) return;
+  badge.textContent = "属" + zodiacOf(el.value);
+  if (gzEl) gzEl.textContent = "日柱" + dayGanzhi(el.value);
+}
+
+function renderPersonFields(){
+  const container = document.getElementById("personFields");
+  container.innerHTML = "";
+  const cfg = loadConfig();
+  for (const p of cfg.persons) {
+    const div = document.createElement("div");
+    div.className = "field";
+    div.innerHTML = `
+      <label>${p.label}</label>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <input type="date" id="${p.key}" value="${p.birth}" style="flex:1;min-width:120px;">
+        <span class="zodiac-badge" id="${p.key}_zodiac">属?</span>
+        <span class="pill" id="${p.key}_gz" title="出生日干支">日柱?</span>
+      </div>`;
+    container.appendChild(div);
+    div.querySelector(`#${p.key}`).addEventListener("change", () => updateZodiac(p.key));
+  }
+  applyConfig(cfg);
+}
+
+/* ---------- 渲染 ---------- */
+function renderResults(rows, total){
+  const tbody = document.querySelector("#resultTable tbody");
+  tbody.innerHTML = "";
+  for (const r of rows) {
+    const e = r.entry, d = r.date;
+    const scoreClass = r.score >= 40 ? "high" : r.score >= 10 ? "mid" : r.score >= -20 ? "low" : "bad";
+    const isWork = isWorkday(d);
+    const yiJi = e.yi && !e.ji ? '<span class="yes">宜</span>'
+               : e.ji ? '<span class="no">忌</span>'
+               : '<span style="color:var(--muted)">—</span>';
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="date">${isoOf(d)}</td>
+      <td>${e.leap ? "闰" : ""}${e.l}${e.jq ? `<br><small style="color:var(--info)">${e.jq}</small>` : ""}</td>
+      <td>${e.dg}</td>
+      <td>${e.zx}</td>
+      <td>${e.tt}·${e.ts}</td>
+      <td>${e.xiu}(${e.xl})</td>
+      <td>${yiJi}</td>
+      <td class="score ${scoreClass}">${r.score}</td>
+      <td>${weekdayCN(d)}</td>
+      <td class="${isWork ? 'workday' : 'weekend'}">${isWork ? "工作日" : "休息日"}</td>
+      <td>
+        <div class="tags">
+          <div class="tag-line">${r.tags.map(t=>`<span class="tag ${t.cls}">${t.t}</span>`).join("")}</div>
+          <div class="tag-line">${r.warns.map(t=>`<span class="tag ${t.cls}">${t.t}</span>`).join("")}</div>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  }
+  document.getElementById("resultTitle").textContent =
+    `推荐吉日（范围内共 ${total} 天，展示前 ${rows.length} 条，按得分降序）`;
+  document.getElementById("resultCard").classList.remove("hidden");
+  document.getElementById("printBtn").disabled = false;
+}
+
+/* ---------- 主流程 ---------- */
+function showBanner(msg, type){
+  const b = document.getElementById("banner");
+  b.textContent = msg;
+  b.className = "banner " + type;
+}
+
+function loadAlmanac(){
+  if (ALMANAC) return ALMANAC;
+  const raw = document.getElementById("almanac-data").textContent.trim();
+  const data = JSON.parse(raw);
+  if (!data.days || Object.keys(data.days).length === 0) {
+    throw new Error("内嵌黄历数据为空，请先运行 build_cert_date_almanac.py");
+  }
+  ALMANAC = data.days;
+  COVER = data.meta;
+  if (COVER && COVER.start) {
+    document.getElementById("coverRange").textContent = `${COVER.start} ~ ${COVER.end}`;
+  }
+  return ALMANAC;
+}
+
+function calculate(){
+  const btn = document.getElementById("calcBtn");
+  btn.disabled = true;
+  try {
+    loadAlmanac();
+  } catch (err) {
+    showBanner("黄历数据解析失败：" + err.message, "error");
+    btn.disabled = false;
+    return;
+  }
+
+  const cfg = gatherConfig();
+  const start = new Date(cfg.start + "T12:00:00");
+  const end = new Date(cfg.end + "T12:00:00");
+  if (isNaN(start) || isNaN(end)) { alert("请填写开始和结束日期"); btn.disabled = false; return; }
+  if (start > end) { alert("开始日期不能晚于结束日期"); btn.disabled = false; return; }
+
+  const coverStart = new Date(COVER.start + "T12:00:00");
+  const coverEnd = new Date(COVER.end + "T12:00:00");
+  if (end < coverStart || start > coverEnd) {
+    alert(`所选范围不在黄历数据覆盖范围（${COVER.start} ~ ${COVER.end}）内。请先运行 build_cert_date_almanac.py 扩充数据。`);
+    btn.disabled = false;
+    return;
+  }
+  const clampStart = start < coverStart ? coverStart : start;
+  const clampEnd = end > coverEnd ? coverEnd : end;
+
+  let rows = findCandidates(clampStart, clampEnd, cfg.persons);
+  const total = rows.length;
+
+  if (document.getElementById("onlyYi").checked) rows = rows.filter(r => r.entry.yi && !r.entry.ji);
+  if (document.getElementById("onlyWork").checked) rows = rows.filter(r => isWorkday(r.date));
+
+  const topN = parseInt(document.getElementById("topN").value, 10);
+  rows = rows.slice(0, topN);
+
+  if (rows.length === 0) {
+    alert("按当前条件没有符合条件的日期，放宽筛选或换个范围吧。");
+    showBanner("没有筛选结果。", "error");
+    btn.disabled = false;
+    return;
+  }
+
+  renderResults(rows, total);
+  showBanner(`已计算：范围内 ${total} 天，当前展示 ${rows.length} 条。数据覆盖 ${COVER.start} ~ ${COVER.end}。`, "ok");
+  saveConfig(cfg);
+
+  document.getElementById("resultCard").scrollIntoView({behavior:"smooth", block:"start"});
+  btn.disabled = false;
+}
+
+function init(){
+  try {
+    loadAlmanac();
+    showBanner(`黄历数据已内嵌：${COVER.start} ~ ${COVER.end}，共 ${Object.keys(ALMANAC).length} 天。`, "ok");
+  } catch (err) {
+    showBanner("黄历数据解析失败：" + err.message, "error");
+  }
+  renderPersonFields();
+  document.getElementById("calcBtn").addEventListener("click", calculate);
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+  document.getElementById("saveBtn").addEventListener("click", () => {
+    saveConfig(gatherConfig());
+    showBanner("配置已保存到浏览器本地存储。", "ok");
+  });
+  document.getElementById("loadBtn").addEventListener("click", () => {
+    applyConfig(loadConfig());
+    showBanner("已恢复上次保存的配置。", "ok");
+  });
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
